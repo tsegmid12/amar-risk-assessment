@@ -3,15 +3,20 @@ const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
 
 const Organization = require('./models/organization');
 const InsuranceProduct = require('./models/insuranceProduct');
 const Recomandation = require('./models/recomendation');
 const RiskAssessment = require('./models/riskAssessment');
 const User = require('./models/user');
-const PORT = 3000;
+const PORT = process.env.PORT 
+const MONGO_URI = process.env.MONGO_URI 
 
-mongoose.connect('mongodb://localhost:27017/amar').then(() => {
+console.log('MONGO_URI:', MONGO_URI);
+
+mongoose.connect(MONGO_URI).then(() => {
     console.log('Connected to MongoDB');
 }).catch((err) => {
     console.error('Error connecting to MongoDB', err);
