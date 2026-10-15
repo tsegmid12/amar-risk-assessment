@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   ShieldAlert,
   Plus,
@@ -14,13 +15,17 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+
+import { ShieldCheck, Check } from "lucide-react";
+
 const riskTypes = [
   "Гал түймэр",
   "Цахилгаан",
   "Сантехник",
+  "Тэсрэлт, дэлбэрэлт",
   "Газар хөдлөлт",
   "Үер",
-  "Хулгай",
+  "Хулгай, дээрэм",
   "Гэнэтийн осол",
   "Бусад",
 ];
@@ -50,10 +55,26 @@ const initialRisk = () => ({
 
 const AddRisk = () => {
   const [organization, setOrganization] = useState("");
+  const [orgLocation, setOrgLocation] = useState("");
   const [risks, setRisks] = useState([initialRisk()]);
   const [searchTerm, setSearchTerm] = useState("");
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [insurance, setInsurance] = useState([]);
+  const [selectedInsurance, setSelectedInsurance] = useState([]);
+
+  useEffect(() => {
+    const fetchInsurance = async () => {
+      try{
+        const response = await axios.get("http://localhost:3000/insurance-products");
+        setInsurance(response.data);
+      } catch (error) {
+        console.error("Error fetching insurance data:", error);
+      }
+    }
+    fetchInsurance();
+  }, []);
+
 
   const addRisk = () => {
     setRisks((prev) => [...prev, initialRisk()]);
@@ -77,16 +98,16 @@ const AddRisk = () => {
     setError("");
   };
 
+
   const filteredRisks = risks.filter((risk) => {
     const query = searchTerm.toLowerCase();
     return (
-      risk.name.toLowerCase().includes(query) ||
       risk.type.toLowerCase().includes(query) ||
       risk.location.toLowerCase().includes(query)
     );
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!organization.trim()) {
@@ -95,7 +116,7 @@ const AddRisk = () => {
     }
 
     const incomplete = risks.some(
-      (risk) => !risk.name.trim() || !risk.location.trim()
+      (risk) => !risk.location.trim()
     );
 
     if (incomplete) {
@@ -107,6 +128,8 @@ const AddRisk = () => {
 
     const payload = {
       organization: organization.trim(),
+      selectedInsurance: selectedInsurance,
+      location: orgLocation.trim(),
       risks: risks.map(({ id, ...risk }) => ({
         ...risk,
         score: Number(risk.score),
@@ -114,9 +137,9 @@ const AddRisk = () => {
       })),
     };
 
-    // Одоогоор backend-д хадгалахгүй.
-    // API холбох үед энэ хэсэгт POST хүсэлт хийнэ.
-    console.log("Эрсдэлийн үнэлгээ:", payload);
+
+    await axios.post("http://localhost:3000/risk-assessments", payload);
+
 
     setSaved(true);
     setError("");
@@ -229,6 +252,22 @@ const AddRisk = () => {
                 setError("");
               }}
               placeholder="Жишээ: Баатарван амралт сувилал"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm mb-4 outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
+            />
+
+             <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Байгууллагын байршил <span className="text-red-500">*</span>
+            </label>
+
+            <input
+              type="text"
+              value={orgLocation}
+              onChange={(e) => {
+                setOrgLocation(e.target.value);
+                setSaved(false);
+                setError("");
+              }}
+              placeholder="Жишээ: Баатарван амралт сувилал"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
             />
           </section>
@@ -313,7 +352,7 @@ const AddRisk = () => {
                   {/* CARD BODY */}
                   <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-7">
                     {/* NAME */}
-                    <div>
+                    {/* <div>
                       <label className="mb-2 block text-sm font-semibold text-gray-700">
                         Үнэлгээний нэр{" "}
                         <span className="text-red-500">*</span>
@@ -327,7 +366,7 @@ const AddRisk = () => {
                         placeholder="Жишээ: Галын аюулгүй байдлын үнэлгээ"
                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-50"
                       />
-                    </div>
+                    </div> */}
 
                     {/* TYPE */}
                     <div>
@@ -449,7 +488,7 @@ const AddRisk = () => {
               );
             })}
 
-            {filteredRisks.length === 0 && (
+            {/* {filteredRisks.length === 0 && (
               <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-12 text-center">
                 <Search className="mx-auto mb-3 text-gray-300" size={32} />
                 <p className="font-semibold text-gray-700">
@@ -459,7 +498,7 @@ const AddRisk = () => {
                   Хайлтын үгээ өөрчилж үзнэ үү.
                 </p>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* ADD ANOTHER RISK */}
@@ -471,6 +510,175 @@ const AddRisk = () => {
             <Plus size={20} />
             Дараагийн эрсдэлийн үнэлгээ нэмэх
           </button>
+
+          <div className=" border border-gray-200 bg-white rounded-2xl mt-6">
+            {/* <div className="bg-gray-100 px-5 rounded-t-2xl py-4 sm:px-7">
+              <p className="font-semibold ">Даатгалын бүтээгдэхүүнүүд</p>
+              <p className="text-sm text-gray-500">Тохирох бүтээгдэхүүнийг сонгоно уу</p>
+            </div> */}
+
+                      
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 bg-linear-to-r  from-gray-50/80 to-white px-5 py-4 sm:px-7">
+              <div>
+                <h3 className="text-base font-bold text-gray-900">
+                  Даатгалын бүтээгдэхүүн
+                </h3>
+                <p className="mt-1 text-xs text-gray-500">
+                  Өөрт тохирох даатгалуудаа сонгоно уу
+                </p>
+              </div>
+            </div>
+
+            {/* Product list */}
+            {insurance.length > 0 ? (
+              <ul className="divide-y divide-gray-100 overflow-y-auto max-h-120">
+                {insurance.map((item, index) => {
+                  const isSelected = selectedInsurance.includes(item._id);
+
+                  const categories = Array.isArray(item.category)
+                    ? item.category
+                    : item.category
+                      ? [item.category]
+                      : [];
+
+                  return (
+                    <li
+                      key={item._id}
+                      style={{
+                        animation: `insuranceEnter 400ms ease-out ${
+                          index * 60
+                        }ms both`,
+                      }}
+                      className={`group transition-colors duration-300 ${
+                        isSelected ? "bg-red-50/40" : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => {
+                          setSelectedInsurance((prev) =>
+                            prev.includes(item._id)
+                              ? prev.filter((id) => id !== item._id)
+                              : [...prev, item._id]
+                          );
+                        }}
+                        className="flex w-full items-center gap-4 px-5 py-4 text-left sm:px-7"
+                      >
+                        {/* Icon */}
+                        <div
+                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
+                            isSelected
+                              ? "scale-105 bg-red-100 text-red-600"
+                              : "bg-gray-100 text-gray-500 group-hover:bg-red-50 group-hover:text-red-500"
+                          }`}
+                        >
+                          <ShieldCheck
+                            size={22}
+                            strokeWidth={1.8}
+                            className="transition-transform duration-300 group-hover:scale-110"
+                          />
+                        </div>
+
+                        {/* Product information */}
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`wrap-break-word text-sm font-semibold transition-colors duration-200 sm:text-base ${
+                              isSelected
+                                ? "text-red-700"
+                                : "text-gray-900 group-hover:text-red-700"
+                            }`}
+                          >
+                            {item.name || "Нэргүй бүтээгдэхүүн"}
+                          </p>
+
+                          {categories.length > 0 && (
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                              {categories.map((category, i) => (
+                                <span
+                                  key={`${category}-${i}`}
+                                  className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
+                                    isSelected
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-gray-100 text-gray-500"
+                                  }`}
+                                >
+                                  {category}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {item.description && (
+                            <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-gray-500">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Animated selection control */}
+                        <span
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 ${
+                            isSelected
+                              ? "scale-100 rotate-0 border-red-500 bg-red-500 text-white shadow-md shadow-red-500/20"
+                              : "border-gray-200 bg-white text-gray-400 group-hover:scale-105 group-hover:border-red-300 group-hover:text-red-500"
+                          }`}
+                        >
+                          {isSelected ? (
+                            <Check
+                              size={19}
+                              strokeWidth={2.8}
+                              className="animate-[checkPop_250ms_ease-out]"
+                            />
+                          ) : (
+                            <Plus
+                              size={19}
+                              className="transition-transform duration-300 group-hover:rotate-90"
+                            />
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="px-5 py-12 text-center sm:px-7">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 text-gray-400">
+                  <ShieldCheck size={27} />
+                </div>
+                <p className="mt-3 text-sm font-semibold text-gray-700">
+                  Бүтээгдэхүүн олдсонгүй
+                </p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Даатгалын бүтээгдэхүүн нэмсний дараа энд харагдана.
+                </p>
+              </div>
+            )}
+
+            {/* Selection footer */}
+            {insurance.length > 0 && (
+              <div className="flex items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/70 px-5 py-3.5 sm:px-7">
+                <p className="text-xs text-gray-500">
+                  Сонгосон бүтээгдэхүүн
+                </p>
+
+                <span
+                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors duration-300 ${
+                    selectedInsurance.length > 0
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {selectedInsurance.length} сонгосон
+                </span>
+              </div>
+            )}
+          </div>
+
+          </div>
 
           {/* ERROR / SUCCESS */}
           {error && (
@@ -490,11 +698,7 @@ const AddRisk = () => {
               <CheckCircle2 size={20} className="shrink-0" />
               <div>
                 <p className="font-bold">
-                  Мэдээлэл шалгалтад тэнцлээ!
-                </p>
-                <p className="mt-1">
-                  Одоогоор мэдээлэл зөвхөн console-д бэлтгэгдсэн. Өгөгдлийн
-                  санд хадгалахын тулд backend API холбоно уу.
+                  Эрсдэлийн үнэлгээ амжилттай нэмэгдлээ!
                 </p>
               </div>
             </div>

@@ -14,6 +14,7 @@ import {
   PanelLeftOpen,
   LogOut,
   UserRound,
+  Pencil,
 } from "lucide-react";
 
 const menuItems = [
@@ -55,6 +56,11 @@ const menuItems = [
         path: "/admin/add-risk",
         icon: ClipboardCheck,
       },
+      // {
+      //   name: "Үнэлгээ шинэчлэх",
+      //   path: "/admin/update-assessment",
+      //   icon: Pencil,
+      // }
     ],
   },
 ];
@@ -67,6 +73,14 @@ export default function AdminNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [search, setSearch] = useState("");
+
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/admin/login", { replace: true });
+  }
 
   const currentPage =
     menuItems
@@ -95,12 +109,12 @@ export default function AdminNavbar() {
       {/* SIDEBAR */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-gray-200 bg-white transition-all duration-300
-          ${collapsed ? "lg:w-[88px]" : "lg:w-[260px]"}
+          ${collapsed ? "lg:w-22" : "lg:w-65"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-          w-[260px]`}
+          w-65`}
       >
         {/* Logo */}
-        <div className="flex h-[76px] shrink-0 items-center justify-between border-b border-gray-100 px-5">
+        <div className="flex h-19 shrink-0 items-center justify-between border-b border-gray-100 px-5">
           <button
             type="button"
             onClick={() => goTo("/admin")}
@@ -166,7 +180,7 @@ export default function AdminNavbar() {
                         ${collapsed ? "lg:justify-center" : ""}`}
                     >
                       {active && (
-                        <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-r-full bg-red-600" />
+                        <span className="absolute bottom-2 left-0 top-2 w-0.75 rounded-r-full bg-red-600" />
                       )}
 
                       <Icon
@@ -220,15 +234,15 @@ export default function AdminNavbar() {
             className="mt-1 flex w-full items-center justify-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-500 transition hover:bg-red-50 hover:text-red-600"
           >
             <Building2 size={20} />
-            {!collapsed && <span>Хэрэглэгчийн хэсэг</span>}
+            {!collapsed && <span>Гарах</span>}
           </button>
         </div>
       </aside>
 
       {/* TOP NAVBAR */}
       <header
-        className={`sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-gray-200 bg-white/95 px-4 backdrop-blur-md transition-all duration-300 sm:px-6
-          ${collapsed ? "lg:ml-[88px]" : "lg:ml-[260px]"}`}
+        className={`sticky top-0 z-30 flex h-19 items-center justify-between border-b border-gray-200 bg-white/95 px-4 backdrop-blur-md transition-all duration-300 sm:px-6
+          ${collapsed ? "lg:ml-22" : "lg:ml-65"}`}
       >
         {/* Left side */}
         <div className="flex min-w-0 items-center gap-3">
@@ -316,11 +330,11 @@ export default function AdminNavbar() {
 
                   <button
                     type="button"
-                    onClick={() => goTo("/insurance-offer")}
+                    onClick={() => handleLogout()}
                     className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-gray-600 transition hover:bg-gray-50"
                   >
                     <LogOut size={16} />
-                    Хэрэглэгчийн хэсэг
+                    Гарах
                   </button>
                 </div>
               </>

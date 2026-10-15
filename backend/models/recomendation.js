@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const RecommendationSchema = new mongoose.Schema({
-    organizationId: {
-        type: mongoose.Schema.Types.ObjectId,   
-        ref: 'Organization',
-        required: true,
-    },
     assessmentId: {
             type: [mongoose.Schema.Types.ObjectId],
             ref: 'RiskAssessment',

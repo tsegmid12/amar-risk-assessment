@@ -1,147 +1,297 @@
-import { useState, useEffect } from 'react';
-import shield from '../../assets/shield.png';
-import offer from '../../assets/offer.png';
+
+import { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Building2,
+  Car,
+  Zap,
+  Droplet,
+  ShieldCheck,
+  CheckCircle2,
+  Package,
+  ChevronDown,
+} from "lucide-react";
 
 const Additional = () => {
-  const [activeCategory, setActiveCategory] = useState('Бүгд');
-  const [isVisible, setIsVisible] = useState(false);
+  const [addService, setAddService] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [expandedService, setExpandedService] = useState(null);
 
+  // Даатгалын бүтээгдэхүүнүүдийг API-аас авах
   useEffect(() => {
-    setIsVisible(true);
+    const fetchAddService = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await axios.get(
+          "http://localhost:3000/insurance-products"
+        );
+
+        const products = Array.isArray(response.data)
+          ? response.data
+          : response.data?.insuranceProducts ||
+            response.data?.products ||
+            [];
+
+        setAddService(products);
+      } catch (err) {
+        console.error(
+          "Error fetching insurance products:",
+          err.response?.data || err.message
+        );
+
+        setError("Нэмэлт үйлчилгээ ачааллахад алдаа гарлаа.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAddService();
   }, []);
 
-  const additionalServices = [
-    {
-      category: "Хууль зүйн зөвлөгөө",
-      services: [
-        {
-          id: 'legal-1',
-          title: "Гэрээний зөвлөх",
-          description: "Бизнесийн гэрээ, хэлцэл, дотоод журмыг боловсруулах, хянах үйлчилгээ.",
-          icon: shield,
-          benefit: "Эрсдэлийг урьдчилан сэргийлж, хууль эрх зүйн найдвартай байдлыг хангана."
-        },
-        {
-          id: 'legal-2',
-          title: "Маргаан шийдвэрлэлт",
-          description: "Иргэний болон арбитрийн шүүхийн төлөөлөл, зөвлөгөө өгөх.",
-          icon: shield,
-          benefit: "Маргааныг хамгийн оновчтой арга замаар, хурдан хугацаанд шийдвэрлүүлнэ."
-        },
-      ]
-    },
-    {
-      category: "Санхүүгийн зөвлөх",
-      services: [
-        {
-          id: 'fin-1',
-          title: "Эрсдэлийн удирдлага",
-          description: "Байгууллагын санхүүгийн эрсдэлийг тооцоолж, удирдах стратеги боловсруулах.",
-          icon: offer,
-          benefit: "Санхүүгийн алдагдлыг бууруулж, тогтвортой өсөлтийг дэмжинэ."
-        },
-        {
-          id: 'fin-2',
-          title: "Даатгалын оновчлол",
-          description: "Даатгалын багцыг эрсдэлээс хамаарч хамгийн хэмнэлттэйгээр тохируулах.",
-          icon: offer,
-          benefit: "Илүү төлбөрөөс зайлсхийж, хамгийн өндөр хамгаалалтыг авна."
-        },
-      ]
-    },
-    {
-      category: "Хурддан үйлчилгээ",
-      services: [
-        {
-          id: 'fast-1',
-          title: "Шуурхай нөхөн төлбөр",
-          description: "Даатгалын хохирлыг хамгийн богино хугацаанд шийдвэрлэх Fast-track үйлчилгээ.",
-          icon: shield,
-          benefit: "Бизнесийн үйл ажиллагааг тасалдуулахгүйгээр хурдан сэргээнэ."
-        },
-      ]
+  // Ангилал бүрд тохирох icon
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case "Эд хөрөнгө":
+        return <Building2 size={25} />;
+
+      case "Тээвэр":
+        return <Car size={25} />;
+
+      case "Цахилгаан":
+        return <Zap size={25} />;
+
+      case "Эрүүл мэнд":
+        return <Droplet size={25} />;
+
+      default:
+        return <Package size={25} />;
     }
-  ];
+  };
 
-  const categories = ['Бүгд', ...additionalServices.map(item => item.category)];
-
-  const filteredServices = activeCategory === 'Бүгд'
-    ? additionalServices.flatMap(cat => cat.services)
-    : additionalServices.find(cat => cat.category === activeCategory)?.services || [];
+  // Нэмэлт үйлчилгээг нээх / хаах
+  const toggleService = (serviceId) => {
+    setExpandedService((current) =>
+      current === serviceId ? null : serviceId
+    );
+  };
 
   return (
-    <div className='p-6 lg:p-12 min-h-screen bg-gray-50/50'>
-      {/* Hero Section */}
-      <div className='max-w-6xl mx-auto mb-12 transition-all duration-1000 ease-out opacity-100 translate-y-0'>
-        <h1 className='text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-gray-900 to-gray-300 mb-3'>
-          Нэмэлт үйлчилгээ
-        </h1>
-        <p className='text-gray-500 text-lg mb-8 max-w-2xl'>
-          Бизнесийн тань эрсдэлийг бүрэн хамгаалж, үйл ажиллагааг оновчтой болгох мэргэжлийн зөвлөх үйлчилгээнүүд.
-        </p>
+    <main className="min-h-screen bg-gray-50/70 px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto w-full max-w-6xl">
+        {/* Header */}
+        <header className="mb-8">
+          <div className="mb-3 flex items-center gap-2 text-red-600">
+            <ShieldCheck size={24} />
 
-        {/* Category Filter Bar */}
-        <div className='flex flex-wrap gap-3 items-center bg-white/60 backdrop-blur-md p-3 rounded-2xl border border-gray-200 shadow-sm w-fit'>
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-xl font-medium text-sm transition-all duration-300 ${
-                activeCategory === cat
-                ? 'bg-red-600 text-white shadow-lg shadow-red-200 scale-105'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-red-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
+            <span className="text-sm font-bold tracking-wide">
+              AMAR ДААТГАЛ
+            </span>
+          </div>
 
-      {/* Services Grid */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-        {filteredServices.map((service, index) => (
-          <div
-            key={service.id}
-            className={`group relative flex flex-col bg-white border border-l-red-500 border-l-4 border-gray-200 rounded-3xl shadow-sm transition-all duration-300 ease-out hover:shadow-xl hover:border-red-200 hover:-translate-y-1 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-          >
+          <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+            Нэмэлт үйлчилгээ
+          </h1>
 
-            <div className='p-8'>
-              
-              <div className="flex flex-col h-full">
-                <div className='relative w-14 h-14 mb-6'>
-                  <div className='absolute inset-0 blur-lg opacity-30 rounded-full bg-red-500'></div>
-                  <img src={service.icon} alt="Icon" className="relative w-full h-full p-3 bg-white rounded-2xl border border-gray-100 shadow-sm" />
-                </div>
+          <p className="max-w-2xl text-sm leading-7 text-gray-500 sm:text-base">
+            Даатгалын бүтээгдэхүүн бүрд хамаарах нэмэлт
+            үйлчилгээ болон боломжуудтай танилцаарай.
+          </p>
 
-                <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
-                  {service.title}
-                </h2>
-                <p className="text-gray-600 leading-relaxed mb-6 grow">
-                  {service.description}
+          {!loading && !error && addService.length > 0 && (
+            <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-red-100 bg-white px-4 py-2.5 shadow-sm">
+              <Package size={18} className="text-red-600" />
+
+              <span className="text-sm text-gray-600">
+                Нийт бүтээгдэхүүн:
+              </span>
+
+              <span className="font-bold text-gray-900">
+                {addService.length}
+              </span>
+            </div>
+          )}
+        </header>
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-100 bg-white py-16">
+            <div className="mb-4 h-9 w-9 animate-spin rounded-full border-4 border-gray-200 border-t-red-600" />
+
+            <p className="text-sm text-gray-500">
+              Үйлчилгээнүүдийг ачаалж байна...
+            </p>
+          </div>
+        )}
+
+        {/* Error */}
+        {!loading && error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+            <div className="flex items-start gap-3">
+              <ShieldCheck
+                size={22}
+                className="shrink-0 text-red-600"
+              />
+
+              <div>
+                <h3 className="font-semibold text-red-700">
+                  Ачааллахад алдаа гарлаа
+                </h3>
+
+                <p className="mt-1 text-sm text-red-600">
+                  {error}
                 </p>
 
-                <div className='pt-6 border-t border-gray-100'>
-                  <div className='flex items-start gap-3 p-3 rounded-2xl bg-green-50 text-green-700'>
-                    <span className='text-lg font-bold'>✓</span>
-                    <p className='text-sm font-medium leading-snug'>
-                      {service.benefit}
-                    </p>
-                  </div>
-                </div>
+                <p className="mt-2 text-xs text-red-500">
+                  Backend сервер localhost:3000 дээр ажиллаж
+                  байгаа эсэхийг шалгана уу.
+                </p>
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* Empty State */}
-      {filteredServices.length === 0 && (
-        <div className='max-w-6xl mx-auto text-center py-20 opacity-50'>
-          <p className='text-xl text-gray-500'>Сонгосон ангилалд үйлчилгээ олдсонгүй.</p>
-        </div>
-      )}
-    </div>
+        {/* Product list */}
+        {!loading && !error && addService.length > 0 && (
+          <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
+            {addService.filter((service) =>
+              Array.isArray(service.additionalServices) && service.additionalServices.some(
+                (item) => typeof item === "string" && item.trim() !== "")).map((service) => {
+              const isExpanded =
+                expandedService === service._id;
+
+              const additionalServices = Array.isArray(service.additionalServices) ? service.additionalServices : [];
+
+              return (
+                <article
+                  key={service._id}
+                  className="group min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:shadow-md sm:p-6"
+                >
+                  {/* Product header */}
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 transition-colors duration-200 group-hover:bg-red-600 group-hover:text-white">
+                      {getCategoryIcon(service.category)}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <span className="mb-2 inline-flex max-w-full rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {service.category || "Бусад"}
+                      </span>
+
+                      <h2 className="break-words text-lg font-bold leading-6 text-gray-900">
+                        {service.name || "Нэргүй бүтээгдэхүүн"}
+                      </h2>
+
+                      {service.description && (
+                        <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-500">
+                          {service.description}
+                        </p>
+                      )}  
+                    </div>
+                  </div>
+
+                  {/* Additional services toggle */}
+                  <div className="mt-5 border-t border-gray-100 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => toggleService(service._id)}
+                      aria-expanded={isExpanded}
+                      className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition-colors duration-200 ${
+                        isExpanded
+                          ? "bg-red-50"
+                          : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <span className="flex min-w-0 items-center gap-2.5">
+                        <CheckCircle2
+                          size={19}
+                          className="shrink-0 text-red-600"
+                        />
+
+                        <span className="text-sm font-semibold text-gray-800">
+                          Нэмэлт үйлчилгээ
+                        </span>
+
+                        <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">
+                          {additionalServices.length}
+                        </span>
+                      </span>
+
+                      <ChevronDown
+                        size={20}
+                        className={`shrink-0 text-gray-500 transition-transform duration-300 ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Expandable content */}
+                    <div
+                      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                        isExpanded
+                          ? "grid-rows-[1fr] opacity-100"
+                          : "grid-rows-[0fr] opacity-0"
+                      }`}
+                    >
+                      <div className="min-h-0 overflow-hidden">
+                        <div className="space-y-3 px-1 pb-1 pt-3">
+                          {additionalServices.length > 0 ? (
+                            additionalServices.map(
+                              (item, index) => (
+                                <div
+                                  key={`${service._id}-${index}`}
+                                  className="flex items-start gap-3 rounded-xl border border-green-100 bg-green-50/70 p-3"
+                                >
+                                  <CheckCircle2
+                                    size={19}
+                                    className="mt-0.5 shrink-0 text-green-600"
+                                  />
+
+                                  <p className="break-words text-sm leading-6 text-gray-700">
+                                    {item}
+                                  </p>
+                                </div>
+                              )
+                            )
+                          ) : (
+                            <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-400">
+                              Нэмэлт үйлчилгээ бүртгэгдээгүй
+                              байна.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && !error && addService.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-16 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50">
+              <ShieldCheck
+                size={30}
+                className="text-gray-400"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800">
+              Даатгалын бүтээгдэхүүн олдсонгүй
+            </h3>
+
+            <p className="mt-2 text-sm text-gray-500">
+              Бүртгэлтэй даатгалын бүтээгдэхүүнүүд энд харагдана.
+            </p>
+          </div>
+        )}
+      </div>
+    </main>
   );
 };
 
