@@ -796,7 +796,7 @@ const navigate = useNavigate();
                               <p className="wrap-break-word font-semibold text-gray-800">
                                 {organization.name}
                               </p>
-                              <a href={`http://localhost:5173/${organization._id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700">
+                              <a href={`https://amardaatgal.netlify.app/${organization._id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700">
                                 {organization._id}
                               </a>
                             </div>
