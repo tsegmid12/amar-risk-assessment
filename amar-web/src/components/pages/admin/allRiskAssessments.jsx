@@ -871,7 +871,7 @@ const navigate = useNavigate();
                           {organization.name}
                         </h3>
 
-                        <a href={`http://localhost:5173/${organization._id}`} className="mt-1 text-xs text-blue-400">
+                        <a href={`https://amardaatgal.netlify.app/${organization._id}`} className="mt-1 text-xs text-blue-400">
                           {organization._id}
                         </a>
 
