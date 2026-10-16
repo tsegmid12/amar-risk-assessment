@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 
-const API = "http://localhost:3000";
-
+const API_URL = import.meta.env.VITE_API_URL;    
 const riskTypes = [
   "Гал түймэр",
   "Цахилгаан",

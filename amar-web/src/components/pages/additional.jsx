@@ -18,6 +18,8 @@ const Additional = () => {
   const [error, setError] = useState("");
   const [expandedService, setExpandedService] = useState(null);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // Даатгалын бүтээгдэхүүнүүдийг API-аас авах
   useEffect(() => {
     const fetchAddService = async () => {
@@ -26,7 +28,7 @@ const Additional = () => {
         setError("");
 
         const response = await axios.get(
-          "http://localhost:3000/insurance-products"
+          `${API_URL}/insurance-products`
         );
 
         const products = Array.isArray(response.data)

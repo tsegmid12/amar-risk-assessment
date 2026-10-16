@@ -25,7 +25,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const API_URL = "http://localhost:3000/risk-assessments";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const filters = ["Бүгд", "Бага", "Дунд", "Их", "Маш их"];
 
@@ -476,7 +476,7 @@ export default function Organizations() {
         setLoading(true);
         setError("");
 
-        const response = await axios.get(API_URL);
+        const response = await axios.get(`${API_URL}/organizations`);
 
         // API массив эсвэл объект доторх массив буцаасан
         const responseData = response.data;

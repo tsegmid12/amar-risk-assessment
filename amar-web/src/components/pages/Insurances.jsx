@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 
 // Backend API
-const API_URL = "http://localhost:3000/insurance-products";
 
 // Даатгалын icon сонгох
 const getInsuranceIcon = (name = "", category = "") => {
@@ -139,13 +138,15 @@ const Insurances = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // API-аас даатгал татах
   const fetchInsurances = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${API_URL}/insurance-products`);
 
       // API array эсвэл object хэлбэрээр өгөгдөл буцаахыг дэмжинэ
       const result = response.data;

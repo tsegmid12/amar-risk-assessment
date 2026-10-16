@@ -61,13 +61,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const fetchRiskAssessment = async () => {
     setLoading(true);
     setError("");
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/riskAssessments/${id}`
+        `${API_URL}/riskAssessments/${id}`
       );
       setRiskAssessment(response.data);
     } catch (err) {

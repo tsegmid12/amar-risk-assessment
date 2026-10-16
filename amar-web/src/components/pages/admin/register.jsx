@@ -10,6 +10,7 @@ import {Mail,  LockKeyhole,  Eye,  EyeOff,  ArrowRight,} from "lucide-react";
 export default function Login() {
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,8 +37,8 @@ const handleRegister = async (e) => {
   setLoading(true);
 
   try {
-    const response = await axios.post(
-      "http://localhost:3000/register",
+    await axios.post(
+      `${API_URL}/register`,
       {
         email: email.trim(),
         password,

@@ -8,6 +8,8 @@ import logo from "../../../assets/logo.svg";
 import {Mail,  LockKeyhole,  Eye,  EyeOff,  ArrowRight,} from "lucide-react";
 
 export default function Login() {
+
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -30,7 +32,7 @@ const handleLogin = async (e) => {
 
   try {
     const response = await axios.post(
-      "http://localhost:3000/login",
+      `${API_URL}/login`,
       {
         email: email.trim(),
         password,

@@ -25,10 +25,12 @@ const AdminHome = () => {
   const [riskAssessments, setRiskAssessments] = useState([]);
   const [insurances, setInsurances] =   useState([]);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchRiskAssessments = async () => {
       try{
-        const response = await axios.get("http://localhost:3000/risk-assessments");
+        const response = await axios.get(`${API_URL}/risk-assessments`);
         setRiskAssessments(response.data);
       } catch (error) {
         console.error("Error fetching risk assessments:", error);
@@ -37,7 +39,7 @@ const AdminHome = () => {
 
     const fetchInsurances = async () => {
       try{
-        const response = await axios.get("http://localhost:3000/insurance-products");
+        const response = await axios.get(`${API_URL}/insurance-products`);
         setInsurances(response.data);
       } catch (error) {
         console.error("Error fetching insurances:", error);
