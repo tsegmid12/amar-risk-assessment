@@ -47,6 +47,7 @@ const verifyToken = (req, res, next) => {
     }
 }
 
+
 app.post('/insurance-products', async (req, res) => {
     const insuranceProduct = await InsuranceProduct.create(req.body);
     res.json(insuranceProduct);
@@ -71,7 +72,7 @@ app.get('/insurance-products', async (req, res) => {
 
 app.get('/risk-assessments', verifyToken, async (req, res) => {
     const id = req.user.id
-    console.log("User ID from token:",id);
+
     const riskAssessments = await RiskAssessment.find({user: id}).populate('selectedInsurance')
     res.json(riskAssessments);
 })
@@ -87,7 +88,6 @@ app.put('/riskAssessments/:id', async (req, res) => {
     res.json(riskAssessment);
 })
 
-const JWT_SECRET="amarJwtSecretKey"
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -98,7 +98,7 @@ app.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-        const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '2h' });
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.json({ success: true, user, token });
     } 
     if(!user) { 
