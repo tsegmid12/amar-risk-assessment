@@ -14,11 +14,6 @@ const insuranceProductSchema = new mongoose.Schema({
         default: [],
         required: true,
     },
-    riskType:{
-        type: [String],
-        default: [],
-        required: false,
-    },
     coverage:{
         type: [String],
         required: true,

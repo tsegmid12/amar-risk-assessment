@@ -39,6 +39,8 @@ const handleLogin = async (e) => {
 
     const { token, user } = response.data;
 
+    const id = user?._id || null;
+
     if (!token) {
       setError("Серверээс JWT token ирсэнгүй.");
       return;
@@ -172,6 +174,12 @@ const handleLogin = async (e) => {
                   />
                 )}
               </button>
+              <div className="h-px flex-1 bg-slate-200" />
+
+              <button onClick={() => navigate('/admin/register')} className="flex border border-red-500 w-full h-14 items-center justify-center rounded-xl font-bold text-red-500 transition hover:bg-red-100 hover:-translate-y-0.5">
+                Бүртгүүлэх
+              </button>
+
             </form>
 
             <div className="my-8 flex items-center gap-4">

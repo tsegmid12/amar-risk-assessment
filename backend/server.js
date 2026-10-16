@@ -3,10 +3,10 @@ const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 
-const Organization = require('./models/organization');
 const InsuranceProduct = require('./models/insuranceProduct');
 const Recomandation = require('./models/recomendation');
 const RiskAssessment = require('./models/riskAssessment');
@@ -14,7 +14,6 @@ const User = require('./models/user');
 const PORT = process.env.PORT 
 const MONGO_URI = process.env.MONGO_URI 
 
-console.log('MONGO_URI:', MONGO_URI);
 
 mongoose.connect(MONGO_URI).then(() => {
     console.log('Connected to MongoDB');
@@ -92,21 +91,55 @@ const JWT_SECRET="amarJwtSecretKey"
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
+
+    const isMatch = await bcrypt.compare(password, user.password) 
     if (user) {
-        const isMatch = user.password === password; 
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-        const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '2h' });
         res.json({ success: true, user, token });
     } 
-    if(!user) {
+    if(!user) { 
         res.status(401).json({ success: false, message: 'Invalid email or password' });
-    }
-
-    
+    }  
 })
 
+app.post('/register', async (req, res) => {
+    try{
+
+    const { email, password } = req.body;
+
+    const cleanEmail = email.trim().toLowerCase();
+    
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@amardaatgal\.mn$/;
+
+    const isEmailValid = emailRegex.test(cleanEmail);
+
+    if(!isEmailValid) {
+        return res.status(400).json({ success: false, message: 'Имэйл хаяг зөвхөн ...@amardaatgal.mn байх ёстой' });
+    }
+    
+    const existingUser = await User.findOne({ email: cleanEmail });
+    if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Имэйл хаяг аль хэдийн бүртгэгдсэн байна' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({ email: cleanEmail, password: hashedPassword });
+    res.json({ success: true});
+    }
+    catch(err) {
+        console.error('Error during registration', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+app.get('/users', verifyToken, async (req, res) => {
+    const users = await User.find();
+    res.json(users);
+})
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 })

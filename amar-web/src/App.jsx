@@ -7,6 +7,8 @@ import {
   Outlet,
   useParams,
 } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
+import {useEffect } from "react"
 
 import Navbar from "./components/navbar/navbar";
 import Home from "./components/pages/home";
@@ -23,15 +25,31 @@ import AllRiskAssessment from "./components/pages/admin/allRiskAssessments";
 import AdminNavbar from "./components/navbar/adminNavbar";
 import UpdateAssessment from "./components/pages/admin/updateAssessment";
 import Login from "./components/pages/admin/login";
+import Register from "./components/pages/admin/register";
 
 // ======================================
 // ADMIN ROUTE PROTECTION
 // ======================================
 function ProtectedRoute() {
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000; 
+
+      if (decodedToken.exp < currentTime) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/admin/login"; 
+      }
+    }
+  }, [])
   let user = null;
 
   try {
     user = JSON.parse(localStorage.getItem("user") || "null");
+    
   } catch {
     user = null;
   }
@@ -45,7 +63,6 @@ function ProtectedRoute() {
 
   return <Outlet />;
 }
-
 const isLogged = JSON.parse(localStorage.getItem("user") || "null");
 
 // ======================================
@@ -90,6 +107,7 @@ function AppContent() {
         path="/admin/login"
         element={<Login />}
       />
+      <Route path="/admin/register" element={<Register />} />
 
       {/* ------------------------------ */}
       {/* ADMIN PAGES - PROTECTED */}

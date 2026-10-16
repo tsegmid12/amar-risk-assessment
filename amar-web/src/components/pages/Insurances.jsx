@@ -208,10 +208,7 @@ const Insurances = () => {
     (item) => item.category === "Эд хөрөнгө"
   ).length;
 
-  const riskCount = initialInsurances.reduce(
-    (total, item) => total + item.riskType.length,
-    0
-  );
+  const riskCount = initialInsurances.length;
 
   const categoryCount = new Set(
     initialInsurances.map((item) => item.category)
@@ -276,12 +273,10 @@ const Insurances = () => {
         <header className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div>
             <div className="mb-3 flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm shadow-red-200">
-                <ShieldCheck size={18} />
-              </span>
+                <ShieldCheck className="text-red-600 h-5"/>
 
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-red-600">
-                AMAR INSURANCE
+              <span className="text-sm text-gray-500">
+                Амар даатгал
               </span>
             </div>
 
@@ -320,7 +315,7 @@ const Insurances = () => {
                 <Building2 size={21} />
               </div>
 
-              <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
+              <span className="rounded-full bg-redч-50 px-2.5 py-1 text-xs font-semibold text-red-700">
                 Хамгаалалт
               </span>
             </div>
@@ -336,12 +331,12 @@ const Insurances = () => {
 
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
             <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-                <Flame size={21} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                <ShieldCheck size={21} />
               </div>
 
-              <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700">
-                Эрсдэл
+              <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
+                Даатгал
               </span>
             </div>
 
@@ -350,7 +345,7 @@ const Insurances = () => {
             </p>
 
             <p className="mt-1 text-sm text-gray-500">
-              Хамрах эрсдэлийн төрөл
+              Нийт даатгал
             </p>
           </div>
 
@@ -676,7 +671,7 @@ const Insurances = () => {
                               <div>
 
                                <div className="space-y-2">
-                              {insurance.coverage.map((risk, i) => (
+                              {insurance.additionalServices.map((risk, i) => (
                                 <div
                                   key={`${risk}-${i}`}
                                   className="flex items-center gap-2 text-sm text-gray-600"
@@ -689,10 +684,8 @@ const Insurances = () => {
                                 </div>
                               ))}
 
-                              {insurance.coverage.length === 0 && (
-                                <p className="text-sm text-gray-400">
-                                  Эрсдэлийн мэдээлэл байхгүй байна.
-                                </p>
+                              {insurance.additionalServices.length === 0 && (
+                                <p className="text-sm text-gray-400">Нэмэлт үйлчилгээ байхгүй байна.</p>
                               )}
                             </div>
                             </div>

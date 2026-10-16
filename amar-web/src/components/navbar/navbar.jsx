@@ -42,7 +42,7 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full px-3 pt-3 sm:px-5 lg:px-8">
       <nav className="mx-auto max-w-8xl rounded-2xl border border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
-        <div className="flex min-h-[68px] items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:px-6">
+        <div className="flex min-h-17 items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:px-6">
 
           {/* LOGO */}
           <NavLink
@@ -181,7 +181,7 @@ function SocialLink({ href, src, alt }) {
       <img
         src={src}
         alt=""
-        className="h-[18px] w-[18px] object-contain"
+        className="h-4.5 w-4.5 object-contain"
       />
     </a>
   );

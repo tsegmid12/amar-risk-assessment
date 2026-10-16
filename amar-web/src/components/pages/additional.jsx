@@ -83,11 +83,11 @@ const Additional = () => {
       <div className="mx-auto w-full max-w-6xl">
         {/* Header */}
         <header className="mb-8">
-          <div className="mb-3 flex items-center gap-2 text-red-600">
-            <ShieldCheck size={24} />
+          <div className="mb-3 flex items-center gap-2 ">
+            <ShieldCheck className="text-red-600 h-5"/>
 
-            <span className="text-sm font-bold tracking-wide">
-              AMAR ДААТГАЛ
+            <span className="text-sm text-gray-500">
+              Нэмэлт үйлчилгээ
             </span>
           </div>
 
@@ -109,7 +109,9 @@ const Additional = () => {
               </span>
 
               <span className="font-bold text-gray-900">
-                {addService.length}
+                {addService.filter((service) =>
+                  Array.isArray(service.additionalServices) &&
+                  service.additionalServices.some((item) => typeof item === "string" && item.trim() !== "")).length}
               </span>
             </div>
           )}
@@ -180,7 +182,7 @@ const Additional = () => {
                         {service.category || "Бусад"}
                       </span>
 
-                      <h2 className="break-words text-lg font-bold leading-6 text-gray-900">
+                      <h2 className="wrap-break-word text-lg font-bold leading-6 text-gray-900">
                         {service.name || "Нэргүй бүтээгдэхүүн"}
                       </h2>
 
@@ -249,7 +251,7 @@ const Additional = () => {
                                     className="mt-0.5 shrink-0 text-green-600"
                                   />
 
-                                  <p className="break-words text-sm leading-6 text-gray-700">
+                                  <p className="wrap-break-word text-sm leading-6 text-gray-700">
                                     {item}
                                   </p>
                                 </div>

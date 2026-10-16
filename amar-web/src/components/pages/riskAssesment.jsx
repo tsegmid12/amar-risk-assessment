@@ -294,7 +294,7 @@ export default function RiskAssessment() {
               </span>
             </div>
 
-            <div className="relative mx-auto mt-5 h-[220px] w-full max-w-[260px]">
+            <div className="relative mx-auto mt-5 h-55 w-full max-w-65">
               <ResponsiveContainer width="100%" height="100%">
                 <RadialBarChart
                   data={chartData}
@@ -551,12 +551,12 @@ function RiskCard({ item, onViewImage }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="break-words text-base font-bold text-slate-900 sm:text-lg">
+          <h3 className="wrap-break-word text-base font-bold text-slate-900 sm:text-lg">
             {item.name}
           </h3>
           <div className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
             <Building2 size={14} className="shrink-0" />
-            <span className="break-words">{item.organization}</span>
+            <span className="wrap-break-word">{item.organization}</span>
           </div>
         </div>
 
@@ -593,7 +593,7 @@ function RiskCard({ item, onViewImage }) {
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
             Тайлбар
           </p>
-          <p className="break-words text-sm leading-6 text-slate-600">
+          <p className="wrap-break-word text-sm leading-6 text-slate-600">
             {item.description || "Тайлбар оруулаагүй байна."}
           </p>
         </div>
@@ -604,7 +604,7 @@ function RiskCard({ item, onViewImage }) {
               size={16}
               className="mt-0.5 shrink-0 text-slate-400"
             />
-            <span className="break-words text-sm text-slate-500">
+            <span className="wrap-break-word text-sm text-slate-500">
               {item.location}
             </span>
           </div>

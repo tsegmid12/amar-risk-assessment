@@ -207,7 +207,7 @@ export default function Home() {
               <div className="h-12 w-1.5 shrink-0 rounded-full bg-red-500 sm:h-14" />
 
               <div className="min-w-0">
-                <h2 className="break-words text-xl font-bold tracking-tight text-slate-900 sm:text-2xl lg:text-3xl">
+                <h2 className="wrap-break-word text-xl font-bold tracking-tight text-slate-900 sm:text-2xl lg:text-3xl">
                   {organizationName}
                 </h2>
 
