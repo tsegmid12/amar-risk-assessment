@@ -468,6 +468,8 @@ export default function Organizations() {
   const [error, setError] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
 
+  const userId = localStorage.getItem("userId") || null;
+
   useEffect(() => {
     let isMounted = true;
 
@@ -476,10 +478,10 @@ export default function Organizations() {
         setLoading(true);
         setError("");
 
-        const response = await axios.get(`${API_URL}/risk-assessments`);
-
+        const response = await axios.get(`${API_URL}/risk-assessments`, {params: {id: userId}});
         // API массив эсвэл объект доторх массив буцаасан
         const responseData = response.data;
+        console.log("Organizations Response:", responseData);
 
         const data = Array.isArray(responseData)
           ? responseData

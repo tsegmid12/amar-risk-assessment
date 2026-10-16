@@ -27,10 +27,15 @@ const AdminHome = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
+  const userId = localStorage.getItem("userId");
+
+
   useEffect(() => {
     const fetchRiskAssessments = async () => {
       try{
-        const response = await axios.get(`${API_URL}/risk-assessments`);
+        const response = await axios.get(`${API_URL}/risk-assessments`, {params: {id: userId}});
+        console.log("Risk Assessments Response:", response.data);
+        console.log("User ID:", userId);
         setRiskAssessments(response.data);
       } catch (error) {
         console.error("Error fetching risk assessments:", error);
@@ -39,6 +44,7 @@ const AdminHome = () => {
 
     const fetchInsurances = async () => {
       try{
+
         const response = await axios.get(`${API_URL}/insurance-products`);
         setInsurances(response.data);
       } catch (error) {
@@ -62,7 +68,7 @@ const AdminHome = () => {
     },
     {
       title: "Эрсдэлийн үнэлгээ",
-      value: riskAssessments.length.toString(),
+      value: (riskAssessments?.length ?? 0).toString(),
       description: "Нийт бүртгэгдсэн үнэлгээ",
       icon: ClipboardCheck,
       color: "blue",

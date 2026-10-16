@@ -1,38 +1,43 @@
-const mongoose = require("mongoose");
+  const mongoose = require("mongoose");
 
-const riskSchema = new mongoose.Schema({
-  type: String,
-  score: Number,
-  description: String,
-  location: String,
-  level: String,
-});
+  const riskSchema = new mongoose.Schema({
+    type: String,
+    score: Number,
+    description: String,
+    location: String,
+    level: String,
+  });
 
-const riskAssessmentSchema = new mongoose.Schema({
-    organization: {
-        type:String,
-        required:true
+  const riskAssessmentSchema = new mongoose.Schema({
+      organization: {
+          type:String,
+          required:true
+      },
+      selectedInsurance: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "InsuranceProduct",
+        required: true,
+      },
+      user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      location: {
+          type:String,
+          required:true
+      },
+    risks: {
+      type: [riskSchema],
+      default: [],
     },
-    selectedInsurance: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "InsuranceProduct",
-      required: true,
-    },
-    location: {
-        type:String,
-        required:true
-    },
-  risks: {
-    type: [riskSchema],
-    default: [],
-  },
-  date:{
-    type: Date,
-    default: Date.now
-  }
-});
+    date:{
+      type: Date,
+      default: Date.now
+    }
+  });
 
-module.exports = mongoose.model(
-  "RiskAssessment",
-  riskAssessmentSchema
-);
+  module.exports = mongoose.model(
+    "RiskAssessment",
+    riskAssessmentSchema
+  );

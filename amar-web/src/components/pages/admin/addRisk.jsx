@@ -63,6 +63,8 @@ const AddRisk = () => {
   const [insurance, setInsurance] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState([]);
 
+  const id = localStorage.getItem("userId") || null;
+
   useEffect(() => {
     const fetchInsurance = async () => {
       try{
@@ -129,6 +131,7 @@ const AddRisk = () => {
     const payload = {
       organization: organization.trim(),
       selectedInsurance: selectedInsurance,
+      user: id,
       location: orgLocation.trim(),
       risks: risks.map(({ id, ...risk }) => ({
         ...risk,

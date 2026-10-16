@@ -59,7 +59,6 @@ app.post('/recomendations', async (req, res) => {
 
 
 app.post('/risk-assessments', async (req, res) => {
-    console.log(req.body);
     const riskAssessment = await RiskAssessment.create(req.body);
     res.json(riskAssessment);
 })
@@ -71,7 +70,8 @@ app.get('/insurance-products', async (req, res) => {
 })
 
 app.get('/risk-assessments', async (req, res) => {
-    const riskAssessments = await RiskAssessment.find().populate('selectedInsurance')
+    const {id} = req.query;
+    const riskAssessments = await RiskAssessment.find({user: id}).populate('selectedInsurance')
     res.json(riskAssessments);
 })
 
