@@ -70,7 +70,8 @@ app.get('/insurance-products', async (req, res) => {
 })
 
 app.get('/risk-assessments', verifyToken, async (req, res) => {
-    const {id} = req.user.id
+    const id = req.user.id
+    console.log("User ID from token:",id);
     const riskAssessments = await RiskAssessment.find({user: id}).populate('selectedInsurance')
     res.json(riskAssessments);
 })

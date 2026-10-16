@@ -468,8 +468,6 @@ export default function Organizations() {
   const [error, setError] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const userId = localStorage.getItem("userId") || null;
-
   useEffect(() => {
     let isMounted = true;
 
