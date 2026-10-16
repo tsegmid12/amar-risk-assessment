@@ -63,12 +63,14 @@ const AddRisk = () => {
   const [insurance, setInsurance] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState([]);
 
-  const id = localStorage.getItem("userId") || null;
+  const API_URL = import.meta.env.VITE_API_URL;
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const id = user?._id;
 
   useEffect(() => {
     const fetchInsurance = async () => {
       try{
-        const response = await axios.get("http://localhost:3000/insurance-products");
+        const response = await axios.get(`${API_URL}/insurance-products`);
         setInsurance(response.data);
       } catch (error) {
         console.error("Error fetching insurance data:", error);
@@ -141,7 +143,8 @@ const AddRisk = () => {
     };
 
 
-    await axios.post("http://localhost:3000/risk-assessments", payload);
+
+    await axios.post(`${API_URL}/risk-assessments`, payload);
 
 
     setSaved(true);

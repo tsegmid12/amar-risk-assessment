@@ -60,6 +60,9 @@ const AddInsurance = () => {
     setSaved(false);
   };
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -81,7 +84,7 @@ const AddInsurance = () => {
     };
 
     // Одоогоор зөвхөн frontend шалгалт хийнэ.
-    const response = await axios.post("http://localhost:3000/insurance-products", payload)
+    await axios.post(`${API_URL}/insurance-products`, payload)
     // Backend API холбохдоо энд POST хүсэлт нэмнэ.
 
     setSaved(true);
