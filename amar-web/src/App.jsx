@@ -196,7 +196,7 @@ function AppContent() {
       {/* Үндсэн зам */}
       <Route
         path="/"
-        element={isLogged ? <Navigate to="/admin" replace /> : <Navigate to="/admin/login" replace />}
+        element={<Navigate to={`/${id}/insurances`} replace />} 
       />
 
       {/* Бусад зам */}

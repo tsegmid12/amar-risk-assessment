@@ -73,8 +73,8 @@ export default function Home() {
       );
       setRiskAssessment(response.data);
     } catch (err) {
-      console.error("Error fetching risk assessment:", err);
-      setError("Эрсдэлийн мэдээллийг ачаалж чадсангүй.");
+      console.error("Мэдээлэл олдсонгүй:", err);
+      setError("Мэдээлэл олдсонгүй. Линкээр дахин нээнэ үү.");
     } finally {
       setLoading(false);
     }

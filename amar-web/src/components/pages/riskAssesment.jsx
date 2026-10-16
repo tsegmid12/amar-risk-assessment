@@ -121,7 +121,7 @@ export default function RiskAssessment() {
       } catch (err) {
         if (!cancelled) {
           console.error("Error fetching risk data:", err);
-          setError("Эрсдэлийн мэдээллийг ачаалж чадсангүй.");
+          setError("Мэдээлэл олдсонгүй. Линкээр дахин нээнэ үү.");
         }
       } finally {
         if (!cancelled) setLoading(false);
