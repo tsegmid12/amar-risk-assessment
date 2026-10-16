@@ -478,7 +478,11 @@ export default function Organizations() {
         setLoading(true);
         setError("");
 
-        const response = await axios.get(`${API_URL}/risk-assessments`, {params: {id: userId}});
+        const response = await axios.get(`${API_URL}/risk-assessments`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         // API массив эсвэл объект доторх массив буцаасан
         const responseData = response.data;
         console.log("Organizations Response:", responseData);

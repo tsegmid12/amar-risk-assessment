@@ -33,7 +33,11 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchRiskAssessments = async () => {
       try{
-        const response = await axios.get(`${API_URL}/risk-assessments`, {params: {id: userId}});
+        const response = await axios.get(`${API_URL}/risk-assessments`,{
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         console.log("Risk Assessments Response:", response.data);
         console.log("User ID:", userId);
         setRiskAssessments(response.data);

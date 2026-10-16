@@ -69,8 +69,8 @@ app.get('/insurance-products', async (req, res) => {
     res.json( insuranceProducts );
 })
 
-app.get('/risk-assessments', async (req, res) => {
-    const {id} = req.query;
+app.get('/risk-assessments', verifyToken, async (req, res) => {
+    const {id} = req.user.id
     const riskAssessments = await RiskAssessment.find({user: id}).populate('selectedInsurance')
     res.json(riskAssessments);
 })

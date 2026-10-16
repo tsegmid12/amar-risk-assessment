@@ -53,8 +53,6 @@ const handleLogin = async (e) => {
     // JWT болон хэрэглэгчийн мэдээллийг хадгална
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("userId", userData._id);
-
 
     // Admin самбар руу шилжинэ
     navigate("/admin", { replace: true });
