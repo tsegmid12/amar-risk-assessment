@@ -2,6 +2,7 @@
 import {React, useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import {
   ShieldCheck,
   ClipboardCheck,
@@ -26,8 +27,7 @@ const AdminHome = () => {
   const [insurances, setInsurances] =   useState([]);
 
   const API_URL = import.meta.env.VITE_API_URL;
-
-  const userId = localStorage.getItem("userId");
+  const user = jwtDecode(localStorage.getItem("token"));
 
 
   useEffect(() => {
@@ -38,8 +38,6 @@ const AdminHome = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        console.log("Risk Assessments Response:", response.data);
-        console.log("User ID:", userId);
         setRiskAssessments(response.data);
       } catch (error) {
         console.error("Error fetching risk assessments:", error);
@@ -113,7 +111,7 @@ const AdminHome = () => {
             </div>
 
             <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-              Сайн байна уу, Админ аа!
+              Сайн байна уу, {user?.email?.split('@')[0] || "Админ"}
             </h1>
 
             <p className="mt-2 text-sm text-gray-500">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {jwtDecode} from "jwt-decode";
 import {
   ShieldAlert,
   Plus,
@@ -64,9 +65,10 @@ const AddRisk = () => {
   const [selectedInsurance, setSelectedInsurance] = useState([]);
 
   const API_URL = import.meta.env.VITE_API_URL;
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-  const id = user?._id;
-
+  const token = localStorage.getItem("token");
+  const user = jwtDecode(token);
+  const id = user?.id
+  
   useEffect(() => {
     const fetchInsurance = async () => {
       try{
@@ -106,8 +108,7 @@ const AddRisk = () => {
   const filteredRisks = risks.filter((risk) => {
     const query = searchTerm.toLowerCase();
     return (
-      risk.type.toLowerCase().includes(query) ||
-      risk.location.toLowerCase().includes(query)
+      risk.type.toLowerCase().includes(query) 
     );
   });
 
@@ -118,18 +119,6 @@ const AddRisk = () => {
       setError("Байгууллагын нэрээ оруулна уу.");
       return;
     }
-
-    const incomplete = risks.some(
-      (risk) => !risk.location.trim()
-    );
-
-    if (incomplete) {
-      setError(
-        "Үнэлгээ бүрийн нэр болон байршлыг бүрэн бөглөнө үү."
-      );
-      return;
-    }
-
     const payload = {
       organization: organization.trim(),
       selectedInsurance: selectedInsurance,
@@ -401,7 +390,7 @@ const AddRisk = () => {
                     </div>
 
                     {/* LOCATION */}
-                    <div className="sm:col-span-2">
+                    {/* <div className="sm:col-span-2">
                       <label className="mb-2 block text-sm font-semibold text-gray-700">
                         Байршил <span className="text-red-500">*</span>
                       </label>
@@ -414,7 +403,7 @@ const AddRisk = () => {
                         placeholder="Жишээ: Үндсэн байр, 1-р давхар"
                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-50"
                       />
-                    </div>
+                    </div> */}
 
                     {/* SCORE */}
                     <div className="sm:col-span-2">

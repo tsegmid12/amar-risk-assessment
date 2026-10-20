@@ -4,7 +4,6 @@
     type: String,
     score: Number,
     description: String,
-    location: String,
     level: String,
   });
 

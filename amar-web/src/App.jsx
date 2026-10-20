@@ -40,7 +40,6 @@ function ProtectedRoute() {
 
       if (decodedToken.exp < currentTime) {
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
         window.location.href = "/admin/login"; 
       }
     }
@@ -48,7 +47,7 @@ function ProtectedRoute() {
   let user = null;
 
   try {
-    user = JSON.parse(localStorage.getItem("user") || "null");
+    user = jwtDecode(localStorage.getItem("token"));
     
   } catch {
     user = null;
@@ -63,8 +62,6 @@ function ProtectedRoute() {
 
   return <Outlet />;
 }
-const isLogged = JSON.parse(localStorage.getItem("user") || "null");
-
 // ======================================
 // CUSTOMER LAYOUT
 // Login шаардлагагүй

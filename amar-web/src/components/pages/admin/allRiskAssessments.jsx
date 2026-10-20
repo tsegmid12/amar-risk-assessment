@@ -21,9 +21,12 @@ import {
   SlidersHorizontal,
   FileText,
   LoaderCircle,
+  Pencil,
   AlertCircle,
   ShieldCheck,
+  Trash 
 } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 
 
 const filters = ["Бүгд", "Бага", "Дунд", "Их", "Маш их"];
@@ -483,7 +486,6 @@ export default function Organizations() {
         });
         // API массив эсвэл объект доторх массив буцаасан
         const responseData = response.data;
-        console.log("Organizations Response:", responseData);
 
         const data = Array.isArray(responseData)
           ? responseData
@@ -579,6 +581,17 @@ export default function Organizations() {
   ).length;
 
 const navigate = useNavigate();
+
+const handleDelete = async (organizationId) => {
+  try{
+    await axios.delete(`${API_URL}/riskAssessments/${organizationId}`)
+    alert("Амжилттай устгалаа")
+    navigate(0)
+  } catch (error) {
+    console.error("Error deleting organization:", error);
+    alert("Алдаа гарлаа")
+  }
+}
 
 
   return (
@@ -779,8 +792,9 @@ const navigate = useNavigate();
                       <th className="px-5 py-4">Эрсдэлийн оноо</th>
                       <th className="px-5 py-4">Түвшин</th>
                       <th className="px-5 py-4">Үнэлгээний огноо</th>
-                      <th className="px-5 py-4 text-center">Шинэчлэх</th>
-                      <th className="px-5 py-4 text-left">Дэлгэрэнгүй</th>
+                      <th className="px-5 py-4">Шинэчлэх</th>
+                      <th className="px-5 py-4 text-center">Дэлгэрэнгүй</th>
+                      <th></th>
                     </tr>
                   </thead>
 
@@ -788,7 +802,7 @@ const navigate = useNavigate();
                     {filteredOrganizations.map((organization) => (
                       <tr
                         key={organization._id}
-                        className="transition hover:bg-red-50/30"
+                        className="transition hover:bg-red-50/30 "
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -832,8 +846,10 @@ const navigate = useNavigate();
                         </td>
 
                         <td className="px-5 py-4 text-right">
-                          <button type="button" onClick={() => {navigate(`/admin/update-assessment/${organization._id}`)}} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
-                          >Засах</button>
+                          <button type="button" onClick={() => {navigate(`/admin/update-assessment/${organization._id}`)}} className="flex justify-center items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                          >
+                            <Pencil size={15} />  
+                            Засах</button>
                         </td>
 
                         <td className="px-5 py-4 text-right">
@@ -846,6 +862,11 @@ const navigate = useNavigate();
                           >
                             <Eye size={15} />
                             Дэлгэрэнгүй
+                          </button>
+                        </td>
+                        <td>
+                          <button type="button" onClick={() => handleDelete(organization._id)} className='pr-6'> 
+                            <Trash size={20} className="text-red-600 hover:text-red-800 texs-sm" />
                           </button>
                         </td>
                       </tr>

@@ -98,7 +98,7 @@ app.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '2h' });
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.json({ success: true, user, token });
     } 
     if(!user) { 
@@ -136,6 +136,23 @@ app.post('/register', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 })
+
+app.delete('/riskAssessments/:id', async (req, res) => {
+    const id = req.params.id;
+    await RiskAssessment.findByIdAndDelete(id);
+    res.json({ success: true });
+})
+
+
+
+app.put('/insurance-products/:id', async (req, res) => {
+    const id = req.params.id;
+    const updateData = req.body;
+    await InsuranceProduct.findByIdAndUpdate(id, updateData, { new: true });
+    res.json({ success: true });
+})
+
+
 
 app.get('/users', verifyToken, async (req, res) => {
     const users = await User.find();

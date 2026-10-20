@@ -48,8 +48,8 @@ const UpdateAssessment = () => {
         setError("");
 
         const [assessmentRes, insuranceRes] = await Promise.all([
-          axios.get(`${API}/riskAssessments/${id}`),
-          axios.get(`${API}/insurance-products`),
+          axios.get(`${API_URL}/riskAssessments/${id}`),
+          axios.get(`${API_URL}/insurance-products`),
         ]);
 
         const data = assessmentRes.data;
@@ -173,7 +173,7 @@ const UpdateAssessment = () => {
       };
 
       const response = await axios.put(
-        `${API}/riskAssessments/${id}`,
+        `${API_URL}/riskAssessments/${id}`,
         payload
       );
 

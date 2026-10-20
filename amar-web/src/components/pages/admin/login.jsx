@@ -39,20 +39,16 @@ const handleLogin = async (e) => {
       }
     );
 
-    const { token, user } = response.data;
+    const { token } = response.data;
 
     if (!token) {
       setError("Серверээс JWT token ирсэнгүй.");
       return;
     }
 
-    // Backend хэрэглэгчийн мэдээлэл буцаагаагүй
-    // тохиолдолд JWT payload-аас уншина.
-    const userData = user || jwtDecode(token);
 
     // JWT болон хэрэглэгчийн мэдээллийг хадгална
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData));
 
     // Admin самбар руу шилжинэ
     navigate("/admin", { replace: true });

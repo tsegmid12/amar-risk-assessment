@@ -77,12 +77,12 @@ function Navbar() {
           {/* SOCIAL LINKS */}
           <div className="hidden shrink-0 items-center gap-2 sm:flex">
             <SocialLink
-              href="https://www.instagram.com/"
+              href="https://www.instagram.com/amarinsurance"
               src={ig}
               alt="Instagram"
             />
             <SocialLink
-              href="https://www.facebook.com/"
+              href="https://www.facebook.com/amarinsurance"
               src={fb}
               alt="Facebook"
             />
@@ -150,12 +150,12 @@ function Navbar() {
 
                 <div className="flex items-center gap-2">
                   <SocialLink
-                    href="https://www.instagram.com/"
+                    href="https://www.instagram.com/amarinsurance"
                     src={ig}
                     alt="Instagram"
                   />
                   <SocialLink
-                    href="https://www.facebook.com/"
+                    href="https://www.facebook.com/amarinsurance"
                     src={fb}
                     alt="Facebook"
                   />
