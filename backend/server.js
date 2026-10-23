@@ -4,15 +4,18 @@ const app = express();
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const {Resend} = require('resend');
 require('dotenv').config();
 
-
+const resend = new Resend(process.env.RESEND_API_KEY);
 const InsuranceProduct = require('./models/insuranceProduct');
 const Recomandation = require('./models/recomendation');
 const RiskAssessment = require('./models/riskAssessment');
 const User = require('./models/user');
 const PORT = process.env.PORT 
 const MONGO_URI = process.env.MONGO_URI 
+
+
 
 
 mongoose.connect(MONGO_URI).then(() => {
@@ -128,7 +131,20 @@ app.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({ email: cleanEmail, password: hashedPassword });
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const result =await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: cleanEmail,
+        subject: "Амар Даатгалд тавтай морилно уу!",
+        html: `Амар Даатгалд тавтай морилно уу! Таны баталгаажуулалтын код: <strong>${code}</strong>`,
+    })
+
+    console.log('Email sent:', result);
+
+    res.json({ success: true, message: 'Бүртгэл амжилттай боллоо. Баталгаажуулалтын код таны имэйл хаяг руу илгээгдсэн.' });
+
+    await User.create({ email: cleanEmail, password: hashedPassword, verificationCode: code, isVerified: false });
     res.json({ success: true});
     }
     catch(err) {
@@ -152,12 +168,38 @@ app.put('/insurance-products/:id', async (req, res) => {
     res.json({ success: true });
 })
 
+app.put("/verify-email", async (req, res) => {
+    try{
+        const { email, code } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
+        }
 
+        if (user.verificationCode !== code) {
+            return res.status(400).json({ success: false, message: 'Баталгаажуулах код буруу байна' });
+        }
+        user.isVerified = true;
+        user.verificationCode = null; 
+        await user.save();
+        res.json({ success: true, message: 'Имэйл амжилттай баталгаажлаа' });
+    }
+    catch(err) {
+        console.error('Error during email verification', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
 
 app.get('/users', verifyToken, async (req, res) => {
     const users = await User.find();
     res.json(users);
 })
+
+app.get('/products/:id', async (req, res) => {
+    const product = await InsuranceProduct.findById(req.params.id);
+    res.json(product);
+})
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 })

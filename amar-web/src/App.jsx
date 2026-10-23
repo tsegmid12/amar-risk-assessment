@@ -26,6 +26,9 @@ import AdminNavbar from "./components/navbar/adminNavbar";
 import UpdateAssessment from "./components/pages/admin/updateAssessment";
 import Login from "./components/pages/admin/login";
 import Register from "./components/pages/admin/register";
+import Verify from "./components/pages/admin/verify";
+import EditInsurances from "./components/pages/admin/editInsurances";
+import Products from "./components/pages/admin/products";
 
 // ======================================
 // ADMIN ROUTE PROTECTION
@@ -106,11 +109,15 @@ function AppContent() {
       />
       <Route path="/admin/register" element={<Register />} />
 
+      <Route path='/verify' element={<Verify />} />
+
+
       {/* ------------------------------ */}
       {/* ADMIN PAGES - PROTECTED */}
       {/* ------------------------------ */}
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminLayout />}>
+
           <Route index element={<Admin />} />
 
           <Route
@@ -136,6 +143,16 @@ function AppContent() {
           <Route
             path="update-assessment/:id"
             element={<UpdateAssessment />}
+          />
+
+          <Route
+            path="edit-insurances/:id"
+            element={<EditInsurances />}
+          />
+
+          <Route
+            path="products"
+            element={<Products />}
           />
 
           <Route

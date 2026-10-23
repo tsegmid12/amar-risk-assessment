@@ -6,6 +6,7 @@ import {
   Building2,
   ClipboardCheck,
   ShieldCheck,
+  ShieldPlus,
   Plus,
   Menu,
   X,
@@ -16,6 +17,7 @@ import {
   LogOut,
   UserRound,
   Pencil,
+  ClipboardPlus 
 } from "lucide-react";
 
 const menuItems = [
@@ -32,16 +34,17 @@ const menuItems = [
         path: "/admin/all-risk-assessment",
         icon: ClipboardCheck,
       },
+       {
+        name: "Даатгалын жагсаалт",
+        path: "/admin/insurances",
+        icon: ShieldCheck,
+      },
     ],
   },
   {
     title: "ДААТГАЛ",
     items: [
-      {
-        name: "Даатгалын жагсаалт",
-        path: "/admin/insurances",
-        icon: ShieldCheck,
-      },
+     
       {
         name: "Үнэлгээ нэмэх",
         path: "/admin/add-risk",
@@ -60,11 +63,11 @@ const menuItemsSuperAdmin = [
         path: "/admin",
         icon: LayoutDashboard,
       },
-    //   {
-    //     name: "Байгууллагууд",
-    //     path: "/admin/organizations",
-    //     icon: Building2,
-    //   },
+      {
+        name: "Даатгалын жагсаалт",
+        path: "/admin/insurances",
+        icon: ShieldCheck,
+      },
       {
         name: "Эрсдэлийн үнэлгээ",
         path: "/admin/all-risk-assessment",
@@ -75,26 +78,22 @@ const menuItemsSuperAdmin = [
   {
     title: "ДААТГАЛ",
     items: [
-      {
-        name: "Даатгалын жагсаалт",
-        path: "/admin/insurances",
-        icon: ShieldCheck,
-      },
+      
       {
         name: "Даатгал нэмэх",
         path: "/admin/add-insurance",
-        icon: Plus,
+        icon: ShieldPlus,
       },
       {
         name: "Үнэлгээ нэмэх",
         path: "/admin/add-risk",
-        icon: ClipboardCheck,
+        icon: ClipboardPlus,
       },
-      // {
-      //   name: "Үнэлгээ шинэчлэх",
-      //   path: "/admin/update-assessment",
-      //   icon: Pencil,
-      // }
+      {
+        name: "Даатгал засах",
+        path: "/admin/products",
+        icon: Pencil,
+      },
     ],
   },
 ];

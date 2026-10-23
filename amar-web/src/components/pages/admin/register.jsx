@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import logo from "../../../assets/logo.svg";
@@ -45,7 +45,7 @@ const handleRegister = async (e) => {
       }
     );
 
-    navigate("/admin/login");
+    navigate("/verify", { state: { email } });
   } catch (err) {
     setError(
       err.response?.data?.message ||
