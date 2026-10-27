@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {Resend} = require('resend');
 require('dotenv').config();
+const cron = require('node-cron');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const InsuranceProduct = require('./models/insuranceProduct');
@@ -26,6 +27,18 @@ mongoose.connect(MONGO_URI).then(() => {
 
 app.use(cors());
 app.use(express.json());
+
+cron.schedule("* * * * * ", async () => {
+  try{
+    await User.deleteMany({ isVerified: false, verificationCodeExpires: { $lt: new Date() } });
+  }
+  catch(error){
+    console.error("CRON ERROR:", error);
+  } 
+})
+
+
+
 
 const verifyToken = (req, res, next) => {
     try{
@@ -101,11 +114,14 @@ app.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
+        if(!user.isVerified) {
+            return res.status(401).json({ success: false, message: 'Имэйл хаяг баталгаажуулаагүй байна.' });
+        }
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '2h' });
         res.json({ success: true, user, token });
     } 
     if(!user) { 
-        res.status(401).json({ success: false, message: 'Invalid email or password' });
+        res.status(401).json({ success: false, message: 'Invalid email or password' },);
     }  
 })
 
@@ -120,7 +136,7 @@ app.post('/register', async (req, res) => {
 
     const isEmailValid = emailRegex.test(cleanEmail);
 
-    if(!isEmailValid) {
+    if(!isEmailValid ) {
         return res.status(400).json({ success: false, message: 'Имэйл хаяг зөвхөн ...@amardaatgal.mn байх ёстой' });
     }
     
@@ -137,15 +153,15 @@ app.post('/register', async (req, res) => {
         from: "onboarding@resend.dev",
         to: cleanEmail,
         subject: "Амар Даатгалд тавтай морилно уу!",
-        html: `Амар Даатгалд тавтай морилно уу! Таны баталгаажуулалтын код: <strong>${code}</strong>`,
+        html: `<h2>Амар Даатгалд тавтай морилно уу!</h2>
+            <p>Таны баталгаажуулалтын код:</p>
+            <h1>${code}</h1>`,
     })
 
-    console.log('Email sent:', result);
 
+    await User.create({ email: cleanEmail, password: hashedPassword, verificationCode: code, isVerified: false, verificationCodeExpires: new Date(Date.now() + 5 * 60 * 1000)});
     res.json({ success: true, message: 'Бүртгэл амжилттай боллоо. Баталгаажуулалтын код таны имэйл хаяг руу илгээгдсэн.' });
 
-    await User.create({ email: cleanEmail, password: hashedPassword, verificationCode: code, isVerified: false });
-    res.json({ success: true});
     }
     catch(err) {
         console.error('Error during registration', err);
@@ -176,9 +192,10 @@ app.put("/verify-email", async (req, res) => {
             return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
         }
 
-        if (user.verificationCode !== code) {
+        if (user.verificationCode != code) {
             return res.status(400).json({ success: false, message: 'Баталгаажуулах код буруу байна' });
         }
+        
         user.isVerified = true;
         user.verificationCode = null; 
         await user.save();
@@ -210,6 +227,12 @@ app.put('/users/:id', async (req, res) => {
     const id = req.params.id;
     const updateData = req.body;
     await User.findByIdAndUpdate(id, updateData, { new: true });
+    res.json({ success: true });
+})
+
+app.delete('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    await User.findByIdAndDelete(id);
     res.json({ success: true });
 })
 

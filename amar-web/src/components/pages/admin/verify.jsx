@@ -9,8 +9,9 @@ const Verify = () => {
     const location = useLocation();
     const API_URL = import.meta.env.VITE_API_URL;  
     const navigate = useNavigate();
+    const email = location.state?.email || '';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     try{
         e.preventDefault();
         setError('');
@@ -19,7 +20,7 @@ const Verify = () => {
         return;
         }
 
-        if(code.trim() === '') {
+        if(code === '') {
             setError('Баталгаажуулах код хоосон байна.');
             return;
         }
@@ -29,8 +30,7 @@ const Verify = () => {
             return;
         }
 
-
-        const response = axios.put(`${API_URL}/verify-email`, {
+        const response = await axios.put(`${API_URL}/verify-email`, {
             email: location.state.email,
             code
         });
@@ -62,7 +62,7 @@ const Verify = () => {
         </h1>
 
         <p className="text-center text-sm text-gray-500">
-          Имэйлд илгээсэн 6 оронтой баталгаажуулалтын кодыг оруулна уу.
+          {email} имэйлд илгээсэн 6 оронтой баталгаажуулалтын кодыг оруулна уу.
         </p>
 
         <input
@@ -72,7 +72,7 @@ const Verify = () => {
           maxLength={6}
           value={code}
           onChange={(e) =>
-            setCode(e.target.value.replace(/\D/g, ''))
+            setCode(e.target.value)
           }
           placeholder="000000"
           className="w-full rounded-lg border border-gray-300 p-3 text-center text-2xl tracking-[0.5em] outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200"
@@ -85,7 +85,7 @@ const Verify = () => {
         >
           Баталгаажуулах
         </button>
-
+          <span className="text-sm text-gray-500" mb-2>Баталгаажуулах код 5 минутын дотор хүчингүй болно.</span>
         <span className="text-sm text-red-500">{error}</span>
       </form>
     </div>

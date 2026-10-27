@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { ClipboardList, Users, ShieldCheck, Activity, Search } from 'lucide-react';
+import { ClipboardList, Users, ShieldCheck, Activity, Search, Trash } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const ROLE_STYLES = {
-  admin: 'bg-red-50 text-red-600 ring-red-200',
-  user: 'bg-slate-100 text-slate-600 ring-slate-200',
+  superadmin: 'bg-red-50 text-red-600 ring-red-200',
+  admin: 'bg-slate-100 text-slate-600 ring-slate-200',
 };
 
 const getInitials = (email = '') => email.slice(0, 2).toUpperCase();
@@ -37,6 +37,22 @@ const ManageUser = () => {
   const [query, setQuery] = useState('');
   const roles = ['superadmin', 'admin'];
   const [savingId, setSavingId] = useState(null);
+
+  const handleDelete = async (userId) => {
+    const comfirmDelete = window.confirm('Та энэ хэрэглэгчийг устгахдаа итгэлтэй байна уу?');
+    if (!comfirmDelete) return;
+
+    try{
+        await axios.delete(`${API_URL}/users/${userId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+    }
+    catch (err) {
+        console.error('Error deleting user:', err);
+        setError('Хэрэглэгчийг устгаж чадсангүй');
+    }
+  }
 
   const handleUpdate = async (userId, updatedData) => {
     setUsers((prevUsers) =>
@@ -154,6 +170,7 @@ const ManageUser = () => {
                 <th scope="col" className="px-6 py-3.5 font-medium">Имэйл</th>
                 <th scope="col" className="px-6 py-3.5 font-medium">Статус</th>
                 <th scope="col" className="px-6 py-3.5 text-right font-medium">Эрсдэлийн үнэлгээ</th>
+                <th scope="col" className="px-6 py-3.5 text-right font-medium">Үйлдэл</th>
               </tr>
             </thead>
 
@@ -204,6 +221,20 @@ const ManageUser = () => {
 
                     <td className="px-6 py-4 text-right font-semibold tabular-nums text-slate-700">
                       {user.assessmentCount}
+                    </td>
+                    <td className="text-end py-4 px-4">
+                         <div className="flex justify-end pr-4">
+                            <button
+                            type="button"
+                            onClick={() => handleDelete(user._id)}
+                            aria-label="Хэрэглэгч устгах"
+                            >
+                            <Trash
+                                size={20}
+                                className="cursor-pointer text-red-500 transition duration-200 hover:scale-110 hover:text-red-700"
+                            />
+                            </button>
+                        </div>
                     </td>
                   </tr>
                 ))}
