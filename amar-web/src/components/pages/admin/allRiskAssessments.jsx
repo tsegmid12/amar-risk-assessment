@@ -311,7 +311,7 @@ function OrganizationDetails({ organization, onClose }) {
             <div className="rounded-xl bg-gray-50 p-4">
               <p className="text-xs text-gray-500">Байршил</p>
 
-              <p className="mt-2 flex items-start gap-1.5 break-words text-sm font-semibold text-gray-800">
+              <p className="mt-2 flex items-start gap-1.5 wrap-break-word text-sm font-semibold text-gray-800">
                 <MapPin
                   size={15}
                   className="mt-0.5 shrink-0 text-red-500"

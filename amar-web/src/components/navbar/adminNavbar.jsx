@@ -78,22 +78,26 @@ const menuItemsSuperAdmin = [
   {
     title: "ДААТГАЛ",
     items: [
-      
-      {
-        name: "Даатгал нэмэх",
-        path: "/admin/add-insurance",
-        icon: ShieldPlus,
-      },
       {
         name: "Үнэлгээ нэмэх",
         path: "/admin/add-risk",
         icon: ClipboardPlus,
       },
       {
+        name: "Даатгал нэмэх",
+        path: "/admin/add-insurance",
+        icon: ShieldPlus,
+      },
+      {
         name: "Даатгал засах",
         path: "/admin/products",
         icon: Pencil,
       },
+     {
+      name: "Хэрэглэгч удирдах",
+      path: "/admin/manage-users",
+      icon: UserRound,
+     }
     ],
   },
 ];

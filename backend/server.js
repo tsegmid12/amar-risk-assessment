@@ -200,6 +200,20 @@ app.get('/products/:id', async (req, res) => {
     res.json(product);
 })
 
+app.delete('/products/:id', async (req, res) => {
+    const id = req.params.id;
+    await InsuranceProduct.findByIdAndDelete(id);
+    res.json({ success: true });
+})
+
+app.put('/users/:id', async (req, res) => {
+    const id = req.params.id;
+    const updateData = req.body;
+    await User.findByIdAndUpdate(id, updateData, { new: true });
+    res.json({ success: true });
+})
+
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 })

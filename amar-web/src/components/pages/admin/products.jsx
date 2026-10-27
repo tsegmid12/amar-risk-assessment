@@ -9,7 +9,8 @@ import {
   FileText,
   Layers,
   LoaderCircle,
-  Search
+  Search,
+  Trash2
 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -21,6 +22,18 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
+
+  const handleDelete = async (productId) => {
+    try{
+      const confirmDelete = window.confirm("Та энэ даатгалын бүтээгдэхүүнийг устгахдаа итгэлтэй байна уу?");
+      if (!confirmDelete) return;
+      await axios.delete(`${API_URL}/products/${productId}`);
+      navigate(0)
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setError("Даатгалын бүтээгдэхүүн устгаж чадсангүй.");
+    }
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -162,7 +175,6 @@ const Products = () => {
                 key={product._id}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl hover:shadow-red-900/5"
               >
-                <div className="h-1.5 bg-gradient-to-r from-red-600 to-rose-400" />
 
                 <div className="flex flex-1 flex-col p-5 sm:p-6">
                   <div className="mb-5 flex items-start justify-between gap-3">
@@ -190,20 +202,27 @@ const Products = () => {
                     {product.description || "Тайлбар оруулаагүй байна."}
                   </p>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigate(`/admin/edit-insurances/${product._id}`)
-                    }
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-red-600/20 transition-all hover:bg-red-700 active:scale-[0.98]"
-                  >
-                    <Pencil size={16} />
-                    Засах
-                    <ArrowUpRight
-                      size={16}
-                      className="ml-auto transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(`/admin/edit-insurances/${product._id}`)
+                      }
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-red-600/20 transition-all hover:bg-red-700 active:scale-[0.98]"
+                    >
+                      <Pencil size={16} />
+                      Засах
+                      <ArrowUpRight
+                        size={16}
+                        className="ml-auto transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      />
+                    </button>
+                    <Trash2
+                      size={24}
+                      className="ml-auto cursor-pointer text-red-500 hover:text-red-700 hover:scale-120 duration-200 transition-transform "
+                      onClick={() => handleDelete(product._id)}
                     />
-                  </button>
+                  </div>
                 </div>
               </div>
             ))}

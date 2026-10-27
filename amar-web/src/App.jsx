@@ -29,6 +29,7 @@ import Register from "./components/pages/admin/register";
 import Verify from "./components/pages/admin/verify";
 import EditInsurances from "./components/pages/admin/editInsurances";
 import Products from "./components/pages/admin/products";
+import ManageUsers from "./components/pages/admin/manageUser";
 
 // ======================================
 // ADMIN ROUTE PROTECTION
@@ -140,20 +141,16 @@ function AppContent() {
             element={<AllRiskAssessment />}
           />
 
-          <Route
-            path="update-assessment/:id"
-            element={<UpdateAssessment />}
+          <Route path="update-assessment/:id" element={<UpdateAssessment />}
           />
 
-          <Route
-            path="edit-insurances/:id"
-            element={<EditInsurances />}
+          <Route path="edit-insurances/:id" element={<EditInsurances />}
           />
 
-          <Route
-            path="products"
-            element={<Products />}
+          <Route path="products" element={<Products />}
           />
+
+          <Route path ="manage-users" element={<ManageUsers />} />
 
           <Route
             path="*"
