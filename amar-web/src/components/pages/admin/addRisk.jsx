@@ -64,6 +64,7 @@ const AddRisk = () => {
   const [error, setError] = useState("");
   const [insurance, setInsurance] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState([]);
+  const [search, setSearch] = useState("");
 
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -110,6 +111,15 @@ const AddRisk = () => {
     const query = searchTerm.toLowerCase();
     return (
       risk.type.toLowerCase().includes(query) 
+    );
+  });
+
+  const filteredInsurance = insurance.filter((item) => {
+    const query = search.toLowerCase();
+    return (
+      item.name.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query) ||
+      (item.category && item.category.toLowerCase().includes(query))
     );
   });
 
@@ -526,12 +536,19 @@ const AddRisk = () => {
                   Өөрт тохирох даатгалуудаа сонгоно уу
                 </p>
               </div>
+              <input
+                type="text"
+                placeholder="Бүтээгдэхүүн хайх..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
             </div>
 
             {/* Product list */}
             {insurance.length > 0 ? (
               <ul className="divide-y divide-gray-100 overflow-y-auto max-h-120">
-                {insurance.map((item, index) => {
+                {filteredInsurance.map((item, index) => {
                   const isSelected = selectedInsurance.includes(item._id);
 
                   const categories = Array.isArray(item.category)
