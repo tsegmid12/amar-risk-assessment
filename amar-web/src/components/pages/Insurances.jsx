@@ -191,11 +191,7 @@ const Insurances = () => {
         insurance.name.toLowerCase().includes(normalizedSearch) ||
         insurance.description
           .toLowerCase()
-          .includes(normalizedSearch) ||
-        insurance.riskType.some((risk) =>
-          risk.toLowerCase().includes(normalizedSearch)
-        );
-
+          .includes(normalizedSearch)
       const matchesCategory =
         selectedCategory === "Бүгд" ||
         insurance.category === selectedCategory;
