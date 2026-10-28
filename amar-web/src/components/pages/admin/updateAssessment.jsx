@@ -39,8 +39,12 @@ const UpdateAssessment = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
-  // Үнэлгээ болон даатгалын бүтээгдэхүүн татах
+  const filteredData = insuranceProducts.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -286,6 +290,7 @@ const UpdateAssessment = () => {
             <p className="mb-5 text-sm text-gray-500">
               Шаардлагатай бүтээгдэхүүнүүдийг сонгоно уу.
             </p>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Бүтээгдэхүүн хайх..." className="mb-4 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
 
             {insuranceProducts.length === 0 ? (
               <p className="text-sm text-gray-400">
@@ -293,7 +298,7 @@ const UpdateAssessment = () => {
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto max-h-80" >
-                {insuranceProducts.map((product) => (
+                {filteredData.map((product) => (
                   <label
                     key={product._id}
                     className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
