@@ -85,9 +85,8 @@ const AddInsurance = () => {
 
     // Одоогоор зөвхөн frontend шалгалт хийнэ.
     await axios.post(`${API_URL}/insurance-products`, payload)
-    // Backend API холбохдоо энд POST хүсэлт нэмнэ.
-
     setSaved(true);
+    navigate(0)
     setError("");
   };
 

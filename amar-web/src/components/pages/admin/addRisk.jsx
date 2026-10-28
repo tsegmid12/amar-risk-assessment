@@ -135,8 +135,8 @@ const AddRisk = () => {
 
     await axios.post(`${API_URL}/risk-assessments`, payload);
 
-
     setSaved(true);
+    navigate(0); // Refresh the page to show the new risk assessment
     setError("");
   };
 

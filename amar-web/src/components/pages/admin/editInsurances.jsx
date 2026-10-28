@@ -215,6 +215,7 @@ const AddInsurance = () => {
       setProduct(updatedProduct);
       setOriginalProduct(updatedProduct);
       setSaved(true);
+      navigate("/admin/products");
     } catch (err) {
       console.error("Хадгалахад алдаа:", err);
       setError(
