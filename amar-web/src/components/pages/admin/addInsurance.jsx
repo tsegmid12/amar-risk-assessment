@@ -107,8 +107,8 @@ const AddInsurance = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-20">
         {/* HEADER */}
         <div className="mb-8">
           <div className="mb-3 flex items-center gap-2 text-sm text-gray-400">

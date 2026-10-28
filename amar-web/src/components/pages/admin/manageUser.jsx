@@ -110,7 +110,7 @@ const ManageUser = () => {
   const adminCount = users.filter((u) => u.role === 'admin').length;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-20">
       {/* Breadcrumb */}
       <nav className="mb-3 flex items-center gap-2 text-sm text-slate-400">
         <ClipboardList size={16} />

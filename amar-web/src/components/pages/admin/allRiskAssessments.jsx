@@ -595,8 +595,8 @@ const handleDelete = async (organizationId) => {
 
 
   return (
-    <main className="min-h-screen bg-[#f7f8fa] px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-[#f7f8fa] ">
+      <div className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-20">
         <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-600">
@@ -814,7 +814,7 @@ const handleDelete = async (organizationId) => {
                               <p className="wrap-break-word font-semibold text-gray-800">
                                 {organization.name}
                               </p>
-                              <a href={`https://amardaatgal.netlify.app/${organization._id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700">
+                              <a href={`https://amardaatgal.vercel.app/${organization._id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700">
                                 {organization._id}
                               </a>
                             </div>

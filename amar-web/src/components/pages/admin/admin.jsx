@@ -99,7 +99,7 @@ const AdminHome = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="mx-auto max-w-7xl space-y-7 p-4 sm:p-6 md:px-8 lg:p-10">
+      <main className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-20">
         {/* PAGE HEADER */}
         <header className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -117,24 +117,6 @@ const AdminHome = () => {
             <p className="mt-2 text-sm text-gray-500">
               Даатгалын системийн ерөнхий мэдээлэл болон үйл ажиллагааны тойм.
             </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => navigate("/admin/add-risk")}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-            >
-              <ClipboardCheck size={18} />
-              Үнэлгээ нэмэх
-            </button>
-
-            <button
-              onClick={() => navigate("/admin/add-insurance")}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 hover:bg-red-700"
-            >
-              <Plus size={19} />
-              Даатгал нэмэх
-            </button>
           </div>
         </header>
 
@@ -160,7 +142,7 @@ const AdminHome = () => {
               onClick={() => navigate("/admin/add-risk")}
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-50"
             >
-              Үнэлгээ бүртгэх
+              Эрсдэлийн үнэлгээ нэмэх
               <ArrowUpRight size={17} />
             </button>
           </div>
@@ -188,7 +170,7 @@ const AdminHome = () => {
             <TrendingUp size={20} className="text-gray-400" />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-2">
             {stats.map((stat) => {
               const Icon = stat.icon;
 
@@ -229,44 +211,16 @@ const AdminHome = () => {
         </section>
 
         {/* RISK CHART + QUICK ACTIONS */}
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          {/* RISK OVERVIEW */}
-          {/* <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 xl:col-span-2">
-            <div className="flex items-start justify-between gap-3">
-                
-              
-            </div>
-          </div> */}
+        <section className="">
 
           {/* QUICK ACTIONS */}
-          <div className="rounded-2xl border border-gray-200 bg-white w-2xl p-5 shadow-sm sm:p-6">
+          <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
             <h2 className="font-bold text-gray-900">Шуурхай үйлдэл</h2>
             <p className="mt-1 text-sm text-gray-500">
               Түгээмэл ашиглах цэсүүд
             </p>
 
-            <div className="gap-4 mt-6 space-y-3">
-              <button
-                onClick={() => navigate("/admin/add-insurance")}
-                className="group flex w-full items-center gap-3 rounded-xl border border-gray-100 p-4 text-left transition hover:border-red-200 hover:bg-red-50/60"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
-                  <Plus size={22} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-gray-800">
-                    Даатгал нэмэх
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Шинэ бүтээгдэхүүн бүртгэх
-                  </p>
-                </div>
-                <ChevronRight
-                  size={18}
-                  className="text-gray-300 transition group-hover:text-red-600"
-                />
-              </button>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 space-y-3">
               <button
                 onClick={() => navigate("/admin/add-risk")}
                 className="group flex w-full items-center gap-3 rounded-xl border border-gray-100 p-4 text-left transition hover:border-blue-200 hover:bg-blue-50/60"
@@ -274,7 +228,7 @@ const AdminHome = () => {
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                   <ClipboardCheck size={21} />
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-">
                   <p className="text-sm font-bold text-gray-800">
                     Эрсдэлийн үнэлгээ нэмэх
                   </p>

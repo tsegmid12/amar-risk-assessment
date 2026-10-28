@@ -78,7 +78,7 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-8 sm:py-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-20">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>

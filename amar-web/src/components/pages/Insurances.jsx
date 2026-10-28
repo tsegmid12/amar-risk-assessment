@@ -264,8 +264,8 @@ const Insurances = () => {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f8fa] px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-[#f7f8fa]">
+      <div className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-85">
         {/* Header */}
         <header className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div>
@@ -305,15 +305,15 @@ const Insurances = () => {
         </header>
 
         {/* Summary cards */}
-        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <section className="mb-8 grid grid-cols-3 gap-4">
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
+            <div className="flex items-center justify-between flex-col md:flex-row ">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl text-red-600 sm:bg-red-50">
                 <Building2 size={21} />
               </div>
 
-              <span className="rounded-full bg-redч-50 px-2.5 py-1 text-xs font-semibold text-red-700">
-                Хамгаалалт
+              <span className="rounded-full bg-redч-50 px-2.5 py-1 text-xs font-semibold text-red-700 ">
+                Хамгаалалт 
               </span>
             </div>
 
@@ -321,14 +321,14 @@ const Insurances = () => {
               {propertyCount}
             </p>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 sm:text-xs md:text-sm">
               Эд хөрөнгийн даатгал
             </p>
           </div>
 
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-50 text-green-600">
+            <div className="flex items-center justify-between flex-col md:flex-row">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl sm:bg-green-50 text-green-600">
                 <ShieldCheck size={21} />
               </div>
 
@@ -341,14 +341,14 @@ const Insurances = () => {
               {riskCount}
             </p>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 md:text-sm">
               Нийт даатгал
             </p>
           </div>
 
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <div className="flex items-center justify-between flex-col md:flex-row">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl sm:bg-blue-50 text-blue-600">
                 <Layers size={21} />
               </div>
 
@@ -361,7 +361,7 @@ const Insurances = () => {
               {categoryCount}
             </p>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 md:text-sm">
               Ангилал
             </p>
           </div>
