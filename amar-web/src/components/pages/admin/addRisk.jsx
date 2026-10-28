@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 import {
   ShieldAlert,
   Plus,
@@ -131,12 +132,11 @@ const AddRisk = () => {
       })),
     };
 
-
-
     await axios.post(`${API_URL}/risk-assessments`, payload);
+    const navigate = useNavigate();
+    navigate(0);
 
     setSaved(true);
-    navigate(0); // Refresh the page to show the new risk assessment
     setError("");
   };
 

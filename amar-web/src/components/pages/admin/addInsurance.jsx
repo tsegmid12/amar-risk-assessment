@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   ShieldCheck,
   Plus,
@@ -84,9 +85,10 @@ const AddInsurance = () => {
     };
 
     // Одоогоор зөвхөн frontend шалгалт хийнэ.
-    await axios.post(`${API_URL}/insurance-products`, payload)
-    setSaved(true);
-    navigate(0)
+      await axios.post(`${API_URL}/insurance-products`, payload)
+      setSaved(true);
+      const navigate = useNavigate();
+      navigate(0)
     setError("");
   };
 
