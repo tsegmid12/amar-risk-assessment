@@ -19,7 +19,6 @@ import {
   ArrowUpRight,
   Sparkles,
   RefreshCw,
-  Box
 } from "lucide-react";
 
 // Backend API
@@ -93,8 +92,9 @@ const categories = [
   { name: "Бүгд", icon: Layers },
   { name: "Эд хөрөнгө", icon: Building2 },
   { name: "Хариуцлага", icon: ShieldCheck },
-  { name: "Амь нас, эрүүл мэнд", icon: HeartPulse },
-  { name: "Ачаа тээвэр", icon: Box },
+  { name: "Тээвэр", icon: Car },
+  { name: "Эрүүл мэнд", icon: HeartPulse },
+  { name: "Хүний амь нас", icon: Activity },
   { name: "Бусад", icon: Package },
 ];
 
