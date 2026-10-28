@@ -319,18 +319,6 @@ export default function AdminNavbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Search */}
-          <div className="hidden items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 transition focus-within:border-red-300 focus-within:bg-white md:flex">
-            <Search size={17} className="text-gray-400" />
-
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Хайх..."
-              className="w-28 bg-transparent text-sm outline-none placeholder:text-gray-400 lg:w-40"
-            />
-          </div>
 
           {/* Admin profile */}
           <div className="relative">
@@ -568,18 +556,6 @@ export default function AdminNavbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Search */}
-          <div className="hidden items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 transition focus-within:border-red-300 focus-within:bg-white md:flex">
-            <Search size={17} className="text-gray-400" />
-
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Хайх..."
-              className="w-28 bg-transparent text-sm outline-none placeholder:text-gray-400 lg:w-40"
-            />
-          </div>
 
           {/* Admin profile */}
           <div className="relative">

@@ -527,13 +527,13 @@ const AddRisk = () => {
                       
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 bg-linear-to-r  from-gray-50/80 to-white px-5 py-4 sm:px-7">
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-between border-b border-gray-100 bg-linear-to-r  from-gray-50/80 to-white px-5 py-4 sm:px-7">
               <div>
                 <h3 className="text-base font-bold text-gray-900">
                   Даатгалын бүтээгдэхүүн
                 </h3>
                 <p className="mt-1 text-xs text-gray-500">
-                  Өөрт тохирох даатгалуудаа сонгоно уу
+                  Тохирох даатгалуудаа сонгоно уу
                 </p>
               </div>
               <input
