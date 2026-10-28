@@ -47,9 +47,9 @@ const getInsuranceColor = (category = "") => {
       return "red";
     case "Хариуцлага":
       return "purple";
-    case "Тээвэр":
+    case "Амь нас, эрүүл мэнд":
       return "blue";
-    case "Эрүүл мэнд":
+    case "Ачаа тээвэр":
       return "emerald";
     default:
       return "orange";
