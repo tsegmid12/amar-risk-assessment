@@ -61,7 +61,9 @@ const AddInsurance = () => {
     setSaved(false);
   };
 
-    const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
+
 
 
   const handleSubmit = async (e) => {
@@ -87,7 +89,6 @@ const AddInsurance = () => {
     // Одоогоор зөвхөн frontend шалгалт хийнэ.
       await axios.post(`${API_URL}/insurance-products`, payload)
       setSaved(true);
-      const navigate = useNavigate();
       navigate(0)
     setError("");
   };

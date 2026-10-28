@@ -113,6 +113,9 @@ const AddRisk = () => {
     );
   });
 
+  const navigate = useNavigate();
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -133,7 +136,6 @@ const AddRisk = () => {
     };
 
     await axios.post(`${API_URL}/risk-assessments`, payload);
-    const navigate = useNavigate();
     navigate(0);
 
     setSaved(true);
