@@ -327,4 +327,9 @@ app.put('/reset-password', async (req, res) => {
     res.json({ success: true, message: 'Нууц үг амжилттай солигдлоо' });
 })
 
+app.get('/all-risk-assessments', async (req, res) => {
+    const riskAssessments = await RiskAssessment.find().populate('user');
+    res.json(riskAssessments);
+})
+
 module.exports = app;
