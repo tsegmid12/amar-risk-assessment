@@ -175,7 +175,7 @@ const AddInsurance = () => {
                 <input
                   type="text"
                   value={form.name}
-                  onChange={(e) => {updateForm("name", e.target.value); setName(e.target.value)}}
+                  onChange={(e) => {updateForm("name", e.target.value)}}
                   placeholder="Жишээ: Хөрөнгийн иж бүрэн даатгал"
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
                 />
@@ -191,7 +191,6 @@ const AddInsurance = () => {
                   value={form.description}
                   onChange={(e) =>
                     {updateForm("description", e.target.value);
-                      setDescription(e.target.value)
                     }
                   }
                   placeholder="Даатгалын зорилго, ямар эрсдэлээс хамгаалах талаар дэлгэрэнгүй бичнэ үү..."
@@ -210,7 +209,6 @@ const AddInsurance = () => {
                     value={form.category}
                     onChange={(e) =>
                       {updateForm("category", e.target.value);
-                        setCategory(e.target.value)
                       }
                     }
                     className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
@@ -272,7 +270,6 @@ const AddInsurance = () => {
                     value={service}
                     onChange={(e) =>
                       {updateList(setServices, services, index, e.target.value);
-                        setAdditionalServices(services)
                       }
                     }
                     placeholder="Жишээ: Галын эрсдэлийн үнэлгээ"
@@ -408,7 +405,6 @@ const AddInsurance = () => {
             <button
               type="submit"
               disabled={loading}
-              onClick={handleSubmit}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-7 py-3 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 hover:bg-red-700"
             >
               <Save size={18} />
