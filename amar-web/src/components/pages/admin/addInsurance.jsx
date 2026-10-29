@@ -89,12 +89,20 @@ const AddInsurance = () => {
     };
 
     // Одоогоор зөвхөн frontend шалгалт хийнэ.
+      setError("");
       setLoading(true);
-      await axios.post(`${API_URL}/insurance-products`, payload)
-      setSaved(true);
-      setLoading(false);
-      navigate(0)
-    setError("");
+      try{
+        await axios.post(`${API_URL}/insurance-products`, payload)
+        setSaved(true);
+        navigate(0)
+      }
+      catch (err) {
+        setError(err.response?.data?.message || (err.code === "ERR_NETWORK" ? "Сервертэй холбогдож чадсангүй." : "Алдаа гарлаа."));
+      }
+      finally {
+        setLoading(false);
+      }
+     
   };
 
 
