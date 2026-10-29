@@ -116,9 +116,12 @@ export default function AdminNavbar() {
 
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/admin/login", { replace: true });
+    const confirmLogout = window.confirm("Та системээс гарахдаа итгэлтэй байна уу?");
+    if (confirmLogout) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/admin/login", { replace: true });
+    }
   }
 
   const currentPage =
@@ -279,10 +282,10 @@ export default function AdminNavbar() {
 
           <button
             type="button"
-            onClick={() => goTo("/insurance-offer")}
+            onClick={() => handleLogout()}
             className="mt-1 flex w-full items-center justify-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-500 transition hover:bg-red-50 hover:text-red-600"
           >
-            <Building2 size={20} />
+            <LogOut size={20} />
             {!collapsed && <span>Гарах</span>}
           </button>
         </div>
@@ -516,10 +519,10 @@ export default function AdminNavbar() {
 
           <button
             type="button"
-            onClick={() => goTo("/insurance-offer")}
+            onClick={() => handleLogout()}
             className="mt-1 flex w-full items-center justify-center gap-3 rounded-xl px-3 py-3 text-sm text-gray-500 transition hover:bg-red-50 hover:text-red-600"
           >
-            <Building2 size={20} />
+            <LogOut size={20} />
             {!collapsed && <span>Гарах</span>}
           </button>
         </div>
