@@ -65,6 +65,7 @@ const AddRisk = () => {
   const [insurance, setInsurance] = useState([]);
   const [selectedInsurance, setSelectedInsurance] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -73,11 +74,14 @@ const AddRisk = () => {
   
   useEffect(() => {
     const fetchInsurance = async () => {
+      setLoading(true);
       try{
         const response = await axios.get(`${API_URL}/insurance-products`);
         setInsurance(response.data);
       } catch (error) {
         console.error("Error fetching insurance data:", error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchInsurance();
@@ -728,10 +732,11 @@ const AddRisk = () => {
 
             <button
               type="submit"
+              disabled={loading}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 hover:bg-red-700"
             >
               <Save size={18} />
-              Бүх үнэлгээг хадгалах
+              {loading ? "Хадгалж байна..." : "Хадгалах"}
             </button>
           </div>
         </form>

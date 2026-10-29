@@ -64,6 +64,8 @@ const AddInsurance = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+
 
 
   const handleSubmit = async (e) => {
@@ -87,8 +89,10 @@ const AddInsurance = () => {
     };
 
     // Одоогоор зөвхөн frontend шалгалт хийнэ.
+      setLoading(true);
       await axios.post(`${API_URL}/insurance-products`, payload)
       setSaved(true);
+      setLoading(false);
       navigate(0)
     setError("");
   };
@@ -398,10 +402,11 @@ const AddInsurance = () => {
             <button
               type="submit"
               onClick={handleSubmit}
+              disabled={loading}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-7 py-3 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 hover:bg-red-700"
             >
               <Save size={18} />
-              Даатгал хадгалах
+              {loading ? "Хадгалж байна..." : "Хадгалах"}
             </button>
           </div>
         </form>
