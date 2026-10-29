@@ -35,7 +35,7 @@ const AddInsurance = () => {
 
   const [services, setServices] = useState([""]);
   const [coverages, setCoverages] = useState([""]);
-  
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
@@ -87,11 +87,20 @@ const AddInsurance = () => {
         .filter(Boolean),
     };
 
-    // Одоогоор зөвхөн frontend шалгалт хийнэ.
-      await axios.post(`${API_URL}/insurance-products`, payload)
-      setSaved(true);
-      navigate(0)
-    setError("");
+      setError("");
+      setLoading(true);
+      try{
+        await axios.post(`${API_URL}/insurance-products`, payload)
+        setSaved(true);
+        navigate(0)
+      }
+      catch (err) {
+        setError(err.response?.data?.message || (err.code === "ERR_NETWORK" ? "Сервертэй холбогдож чадсангүй." : "Алдаа гарлаа."));
+      }
+      finally{
+        setLoading(false);
+      }
+
   };
 
 
@@ -398,11 +407,12 @@ const AddInsurance = () => {
 
             <button
               type="submit"
+              disabled={loading}
               onClick={handleSubmit}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-7 py-3 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 hover:bg-red-700"
             >
               <Save size={18} />
-              Даатгал хадгалах
+              {loading ? "Хадгалж байна..." : "Хадгалах"}
             </button>
           </div>
         </form>

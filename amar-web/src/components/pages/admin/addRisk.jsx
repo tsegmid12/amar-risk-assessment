@@ -74,14 +74,11 @@ const AddRisk = () => {
   
   useEffect(() => {
     const fetchInsurance = async () => {
-      setLoading(true);
       try{
         const response = await axios.get(`${API_URL}/insurance-products`);
         setInsurance(response.data);
       } catch (error) {
         console.error("Error fetching insurance data:", error);
-      } finally {
-        setLoading(false);
       }
     }
     fetchInsurance();
@@ -149,11 +146,21 @@ const AddRisk = () => {
       })),
     };
 
-    await axios.post(`${API_URL}/risk-assessments`, payload);
-    navigate(0);
+    setLoading(true);
+    try{
+      await axios.post(`${API_URL}/risk-assessments`, payload);
+      navigate(0);
 
-    setSaved(true);
-    setError("");
+      setSaved(true);
+      setError("");
+    }
+    catch (err) {
+      setError(err.response?.data?.message || (err.code === "ERR_NETWORK" ? "Сервертэй холбогдож чадсангүй." : "Алдаа гарлаа."));
+    }
+    finally{
+      setLoading(false);
+    }
+
   };
 
   return (
