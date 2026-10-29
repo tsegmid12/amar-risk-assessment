@@ -30,6 +30,9 @@ import Verify from "./components/pages/admin/verify";
 import EditInsurances from "./components/pages/admin/editInsurances";
 import Products from "./components/pages/admin/products";
 import ManageUsers from "./components/pages/admin/manageUser";
+import ForgotPassword from "./components/pages/admin/forgotPassword";
+import ForgotPasswordVerify from "./components/pages/admin/forgotPasswordVerify";
+import ResetPassword from "./components/pages/admin/resetPassword";
 
 // ======================================
 // ADMIN ROUTE PROTECTION
@@ -101,21 +104,16 @@ function AppContent() {
 
   return (
     <Routes>
-      {/* ------------------------------ */}
       {/* ADMIN LOGIN - PUBLIC */}
-      {/* ------------------------------ */}
-      <Route
-        path="/admin/login"
-        element={<Login />}
-      />
+      <Route path="/admin/login" element={<Login />}/>
       <Route path="/admin/register" element={<Register />} />
-
+      <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+      <Route path="/admin/reset-password" element={<ResetPassword />} />
+      <Route path="/admin/forgot-password-verify" element={<ForgotPasswordVerify />} />
       <Route path='/verify' element={<Verify />} />
 
 
-      {/* ------------------------------ */}
       {/* ADMIN PAGES - PROTECTED */}
-      {/* ------------------------------ */}
       <Route element={<ProtectedRoute />}>
         <Route path="/admin" element={<AdminLayout />}>
 

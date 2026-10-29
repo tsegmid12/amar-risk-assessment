@@ -34,7 +34,7 @@ const handleLogin = async (e) => {
     const response = await axios.post(
       `${API_URL}/login`,
       {
-        email: email.trim(),
+        email: email.trim().toLocaleLowerCase(),
         password,
       }
     );
@@ -156,6 +156,8 @@ const handleLogin = async (e) => {
                   {error}
                 </div>
               )}
+
+              <p><a href="/admin/forgot-password" className="text-red-500 hover:underline">Нууц үг мартсан уу?</a></p>
 
               <button
                 type="submit"

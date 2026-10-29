@@ -40,12 +40,12 @@ const handleRegister = async (e) => {
     await axios.post(
       `${API_URL}/register`,
       {
-        email: email.trim(),
+        email: email.trim().toLocaleLowerCase(),
         password,
       }
     );
 
-    navigate("/verify", { state: { email } });
+    navigate("/verify", { state: { email: email.trim().toLocaleLowerCase() } });
   } catch (err) {
     setError(
       err.response?.data?.message ||
@@ -72,7 +72,6 @@ const handleRegister = async (e) => {
             </div>
 
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl mb-2">Бүртгүүлэх</h2>
-            <p className="text-sm text-slate-500">Ажлын имэйл хаягаар бүртгүүлнэ үү?</p>
 
             <form onSubmit={handleRegister} className="mt-9 space-y-6">
               <div>

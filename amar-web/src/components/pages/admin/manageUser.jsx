@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const ROLE_STYLES = {
   superadmin: 'bg-red-50 text-red-600 ring-red-200',
-  admin: 'bg-slate-100 text-slate-600 ring-slate-200',
+  admin: 'bg-green-100 text-green-600 ring-green-200',
 };
 
 const getInitials = (email = '') => email.slice(0, 2).toUpperCase();
