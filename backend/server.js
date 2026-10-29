@@ -198,6 +198,7 @@ app.put("/verify-email", async (req, res) => {
         
         user.isVerified = true;
         user.verificationCode = null; 
+        user.verificationCodeExpires = null;
         await user.save();
         res.json({ success: true, message: 'Имэйл амжилттай баталгаажлаа' });
     }
@@ -236,5 +237,94 @@ app.delete('/users/:id', async (req, res) => {
     res.json({ success: true });
 })
 
+app.put('/reset-password', async (req, res) => {
+    try{
+        const { email, newPassword } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+        res.json({ success: true, message: 'Нууц үг амжилттай солигдлоо' });
+    }
+    catch(err) {
+        console.error('Error during password reset', err);
+        res.status(500).json({ success: false, message: 'Internal server error' }); 
+    }
+})
+
+app.post('/forgot-password', async (req, res) => {
+    try{
+        const { email } = req.body;
+        const user = await User.findOne({email})
+
+        if(!user){
+            return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
+        }
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        user.resetPasswordCode = code;
+        user.resetPasswordVerified = false;
+        user.resetPasswordCodeExpires = new Date(Date.now() + 5 * 60 * 1000);
+        await user.save();
+
+        await resend.emails.send({
+            from: "noreply@amardaatgal.risk.mn",
+            to: email,
+            subject: "Нууц үг сэргээх код",
+            html: `<p>Таны нууц үг сэргээх код: </p>
+            <h1>${code}</h1>`,
+        });
+
+        res.json({ success: true, message: 'Нууц үг сэргээх код илгээгдлээ' });
+    }
+    catch(err) {
+        console.error('Error during forgot password', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+app.put('/verify-reset-password-code', async (req, res) => {
+    try{
+        const { email, code } = req.body;
+        const user = await User.findOne({ email });
+
+    if(!user){
+        return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
+    }
+
+    if(user.resetPasswordCode !== code){
+        return res.status(400).json({ success: false, message: 'Нууц үг сэргээх код буруу байна' });
+    }
+
+    user.resetPasswordVerified = true;
+    user.resetPasswordCode = null;
+    user.resetPasswordCodeExpires = null;
+    await user.save();
+    res.json({ success: true, message: 'Нууц үг сэргээх код баталгаажлаа' });
+    }
+    catch(err){
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+app.put('/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    res.json({ success: true, message: 'Нууц үг амжилттай солигдлоо' });
+})
 
 module.exports = app;
