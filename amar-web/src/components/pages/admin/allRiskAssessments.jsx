@@ -466,7 +466,7 @@ export default function Organizations() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Бүгд");
   const [selectedOrganization, setSelectedOrganization] = useState(null);
-  const [sortBy, setSortBy] = useState("score-desc");
+  const [sortBy, setSortBy] = useState("default");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
@@ -554,11 +554,12 @@ export default function Organizations() {
 
         return matchesSearch && matchesRisk;
       })
-      .sort((a, b) =>
-        sortBy === "score-asc"
+      .sort((a, b) => {
+        if (sortBy === "default") return 0;
+        return sortBy === "score-asc"
           ? a.score - b.score
           : b.score - a.score
-      );
+      });
   }, [organizations, searchTerm, selectedFilter, sortBy]);
 
   // Байгууллага бүрийн нийт score-ийн дундаж
@@ -584,8 +585,10 @@ const navigate = useNavigate();
 
 const handleDelete = async (organizationId) => {
   try{
+    const confirmDelete = window.confirm("Та энэ эрсдэлийн үнэлгээг устгахдаа итгэлтэй байна уу?");
+    if(!confirmDelete) return;
+
     await axios.delete(`${API_URL}/riskAssessments/${organizationId}`)
-    alert("Амжилттай устгалаа")
     navigate(0)
   } catch (error) {
     console.error("Error deleting organization:", error);
@@ -723,7 +726,8 @@ const handleDelete = async (organizationId) => {
                 value={sortBy}
                 onChange={(event) => setSortBy(event.target.value)}
                 className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 outline-none focus:border-red-300"
-              >
+              > 
+                <option value="default">-</option>
                 <option value="score-desc">Эрсдэл өндөрөөс</option>
                 <option value="score-asc">Эрсдэл багатайгаас</option>
               </select>

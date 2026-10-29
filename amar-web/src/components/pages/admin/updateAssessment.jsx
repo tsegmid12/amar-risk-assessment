@@ -336,15 +336,6 @@ const UpdateAssessment = () => {
                   Нийт {risks.length} эрсдэл
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={addRisk}
-                className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
-              >
-                <Plus size={18} />
-                Эрсдэл нэмэх
-              </button>
             </div>
 
             {risks.length === 0 && (
@@ -432,34 +423,31 @@ const UpdateAssessment = () => {
 
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-gray-600">
-                        Эрсдэлийн байршил
-                      </label>
-                      <input
-                        value={risk.location}
-                        onChange={(e) =>
-                          updateRisk(index, "location", e.target.value)
-                        }
-                        placeholder="Жишээ: Үндсэн барилга"
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-red-400"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-1.5 block text-sm font-medium text-gray-600">
                         Тайлбар
                       </label>
-                      <input
+                      <textarea
                         value={risk.description}
                         onChange={(e) =>
                           updateRisk(index, "description", e.target.value)
                         }
                         placeholder="Эрсдэлийн тайлбар"
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-red-400"
+                        className="w-full rounded-lg border border-gray-200 px-3 py-4 outline-none focus:border-red-400"
                       />
                     </div>
                   </div>
                 </div>
               ))}
+              <div className="flex justify-end">
+                <button
+                type="button"
+                onClick={addRisk}
+                className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                >
+                  <Plus size={18} />
+                  Эрсдэл нэмэх
+                </button>
+              </div>
+               
             </div>
           </section>
 

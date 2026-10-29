@@ -269,7 +269,7 @@ const AddRisk = () => {
                 setSaved(false);
                 setError("");
               }}
-              placeholder="Жишээ: Баатарван амралт сувилал"
+              placeholder="Байгууллагын нэр оруулна уу"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm mb-4 outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
             />
 
@@ -285,7 +285,7 @@ const AddRisk = () => {
                 setSaved(false);
                 setError("");
               }}
-              placeholder="Жишээ: Баатарван амралт сувилал"
+              placeholder="Байгууллагын байршил оруулна уу"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
             />
           </section>
@@ -369,23 +369,6 @@ const AddRisk = () => {
 
                   {/* CARD BODY */}
                   <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-7">
-                    {/* NAME */}
-                    {/* <div>
-                      <label className="mb-2 block text-sm font-semibold text-gray-700">
-                        Үнэлгээний нэр{" "}
-                        <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={risk.name}
-                        onChange={(e) =>
-                          updateRisk(risk.id, "name", e.target.value)
-                        }
-                        placeholder="Жишээ: Галын аюулгүй байдлын үнэлгээ"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-50"
-                      />
-                    </div> */}
-
                     {/* TYPE */}
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -411,22 +394,6 @@ const AddRisk = () => {
                         />
                       </div>
                     </div>
-
-                    {/* LOCATION */}
-                    {/* <div className="sm:col-span-2">
-                      <label className="mb-2 block text-sm font-semibold text-gray-700">
-                        Байршил <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={risk.location}
-                        onChange={(e) =>
-                          updateRisk(risk.id, "location", e.target.value)
-                        }
-                        placeholder="Жишээ: Үндсэн байр, 1-р давхар"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-50"
-                      />
-                    </div> */}
 
                     {/* SCORE */}
                     <div className="sm:col-span-2">
@@ -505,18 +472,6 @@ const AddRisk = () => {
                 </section>
               );
             })}
-
-            {/* {filteredRisks.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-12 text-center">
-                <Search className="mx-auto mb-3 text-gray-300" size={32} />
-                <p className="font-semibold text-gray-700">
-                  Тохирох эрсдэл олдсонгүй
-                </p>
-                <p className="mt-1 text-sm text-gray-400">
-                  Хайлтын үгээ өөрчилж үзнэ үү.
-                </p>
-              </div>
-            )} */}
           </div>
 
           {/* ADD ANOTHER RISK */}
@@ -530,11 +485,6 @@ const AddRisk = () => {
           </button>
 
           <div className=" border border-gray-200 bg-white rounded-2xl mt-6">
-            {/* <div className="bg-gray-100 px-5 rounded-t-2xl py-4 sm:px-7">
-              <p className="font-semibold ">Даатгалын бүтээгдэхүүнүүд</p>
-              <p className="text-sm text-gray-500">Тохирох бүтээгдэхүүнийг сонгоно уу</p>
-            </div> */}
-
                       
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             {/* Header */}

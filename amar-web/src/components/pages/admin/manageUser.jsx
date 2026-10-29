@@ -82,7 +82,7 @@ const ManageUser = () => {
       try {
         const [usersRes, risksRes] = await Promise.all([
           axios.get(`${API_URL}/users`, { headers }),
-          axios.get(`${API_URL}/risk-assessments`, { headers }),
+          axios.get(`${API_URL}/all-risk-assessments`, { headers }),
         ]);
         setUsers(usersRes.data);
         setRiskAssessments(risksRes.data);
@@ -96,6 +96,7 @@ const ManageUser = () => {
 
     fetchData();
   }, []);
+
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();

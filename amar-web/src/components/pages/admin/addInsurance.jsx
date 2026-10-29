@@ -245,15 +245,6 @@ const AddInsurance = () => {
                   </p>
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => addItem(setServices, services)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-              >
-                <Plus size={17} />
-                Үйлчилгээ нэмэх
-              </button>
             </div>
 
             <div className="space-y-3 p-5 sm:p-7">
@@ -294,6 +285,17 @@ const AddInsurance = () => {
                   Нэмэлт үйлчилгээ бүртгээгүй байна.
                 </p>
               )}
+
+              <div className="mt-6 flex justify-end">
+                <button
+                type="button"
+                onClick={() => addItem(setServices, services)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                >
+                  <Plus size={17} />
+                  Үйлчилгээ нэмэх
+                </button>
+              </div>
             </div>
           </section>
 
@@ -313,15 +315,6 @@ const AddInsurance = () => {
                   </p>
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => addItem(setCoverages, coverages)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-              >
-                <Plus size={17} />
-                Хүрээ нэмэх
-              </button>
             </div>
 
             <div className="space-y-3 p-5 sm:p-7">
@@ -361,7 +354,19 @@ const AddInsurance = () => {
                   Хамрах хүрээ бүртгээгүй байна.
                 </p>
               )}
+
+              <div className="mt-6 flex justify-end">
+                <button
+                type="button"
+                onClick={() => addItem(setCoverages, coverages)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                >
+                  <Plus size={17} />
+                  Хүрээ нэмэх
+                </button>
+              </div>
             </div>
+            
           </section>
 
           {/* STATUS MESSAGES */}
