@@ -87,14 +87,14 @@ app.post('/risk-assessments', async (req, res) => {
   try {
     const riskAssessment = await RiskAssessment.create(req.body);
  
-    // try {
-    //   const dealId = await createProposalDeal(riskAssessment);
-    //   riskAssessment.bitrixDealId = dealId;
-    //   await riskAssessment.save();
-    //   console.log(`Bitrix24 хэлцэл амжилттай үүсгэгдлээ (RA #${riskAssessment.id}, Deal ID: ${dealId})`);
-    // } catch (e) {
-    //   console.error(`Bitrix24 хэлцэл үүсгэж чадсангүй (RA #${riskAssessment.id}):`, e.message);
-    // }
+    try {
+      const dealId = await createProposalDeal(riskAssessment);
+      riskAssessment.bitrixDealId = dealId;
+      await riskAssessment.save();
+      console.log(`Bitrix24 хэлцэл амжилттай үүсгэгдлээ (RA #${riskAssessment.id}, Deal ID: ${dealId})`);
+    } catch (e) {
+      console.error(`Bitrix24 хэлцэл үүсгэж чадсангүй (RA #${riskAssessment.id}):`, e.message);
+    }
  
     res.json(riskAssessment);
   } catch (e) {
@@ -358,14 +358,14 @@ app.post('/price-offers', async (req, res) => {
     try{
         const priceOffer = await PriceOffer.create(req.body);
         res.json(priceOffer);
-        //   try {
-        //     const dealId = await createPriceOfferDeal(priceOffer);
-        //     priceOffer.bitrixDealId = dealId;
-        //     await priceOffer.save();
-        //     console.log(`Bitrix24 хэлцэл амжилттай үүсгэгдлээ (RA #${priceOffer.id}, Deal ID: ${dealId})`);
-        //     } catch (e) {
-        //     console.error(`Bitrix24 хэлцэл үүсгэж чадсангүй (RA #${priceOffer.id}):`, e.message);
-        //     }
+          try {
+            const dealId = await createPriceOfferDeal(priceOffer);
+            priceOffer.bitrixDealId = dealId;
+            await priceOffer.save();
+            console.log(`Bitrix24 хэлцэл амжилттай үүсгэгдлээ (RA #${priceOffer.id}, Deal ID: ${dealId})`);
+            } catch (e) {
+            console.error(`Bitrix24 хэлцэл үүсгэж чадсангүй (RA #${priceOffer.id}):`, e.message);
+            }
     } catch (error) {
         console.error('Error creating price offer', error);
         res.status(500).json({ success: false, message: 'Internal server error' });
