@@ -591,7 +591,7 @@ export default function PriceOffers() {
                                   {item.email}
                                 </p>
                               )}
-                              <a href={`https://amardaatgal.vercel.app//${item._id}`} target="_blank" rel="noopener noreferrer" className="mt-0.5 flex items-center gap-1 text-xs text-blue-400 hover:text-red-600">
+                              <a href={`https://amardaatgal.vercel.app/${item._id}`} target="_blank" rel="noopener noreferrer" className="mt-0.5 flex items-center gap-1 text-xs text-blue-400 hover:text-red-600">
                                 <FileText size={12} />
                                 Үнийн саналын холбоос
                               </a>
