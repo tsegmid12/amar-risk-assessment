@@ -189,7 +189,7 @@ const Additional = () => {
                       </h2>
 
                       {service.description && (
-                        <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-500">
+                        <p className={`mt-2 line-clamp-3 text-sm leading-6 text-gray-500 ${isExpanded ? "" : "truncate"}`}>
                           {service.description}
                         </p>
                       )}  

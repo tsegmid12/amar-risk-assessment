@@ -3,14 +3,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import {
   LayoutDashboard,
-  Building2,
+  BadgeDollarSign,
   ClipboardCheck,
   ShieldCheck,
   ShieldPlus,
   Plus,
   Menu,
   X,
-  Search,
+  BadgePlus,
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
@@ -30,6 +30,11 @@ const menuItems = [
         icon: LayoutDashboard,
       },
       {
+        name: "Үнийн санал",
+        path: "/admin/price-offers",
+        icon: BadgeDollarSign,
+      },
+      {
         name: "Эрсдэлийн үнэлгээ",
         path: "/admin/all-risk-assessment",
         icon: ClipboardCheck,
@@ -44,9 +49,13 @@ const menuItems = [
   {
     title: "ДААТГАЛ",
     items: [
-     
+     {
+        name: " Үнийн санал нэмэх",
+        path: "/admin/all-price-offers",
+        icon: BadgePlus,
+     },
       {
-        name: "Үнэлгээ нэмэх",
+        name: "Эрсдэлийн үнэлгээ нэмэх",
         path: "/admin/add-risk",
         icon: Plus,
       },
@@ -63,15 +72,20 @@ const menuItemsSuperAdmin = [
         path: "/admin",
         icon: LayoutDashboard,
       },
-      {
-        name: "Даатгалын жагсаалт",
-        path: "/admin/insurances",
-        icon: ShieldCheck,
+       {
+        name: "Үнийн санал",
+        path: "/admin/all-price-offers",
+        icon: BadgeDollarSign,
       },
       {
         name: "Эрсдэлийн үнэлгээ",
         path: "/admin/all-risk-assessment",
         icon: ClipboardCheck,
+      },
+      {
+        name: "Даатгалын жагсаалт",
+        path: "/admin/insurances",
+        icon: ShieldCheck,
       },
     ],
   },
@@ -79,7 +93,12 @@ const menuItemsSuperAdmin = [
     title: "ДААТГАЛ",
     items: [
       {
-        name: "Үнэлгээ нэмэх",
+        name: " Үнийн санал нэмэх",
+        path: "/admin/price-offers",
+        icon: BadgePlus,
+      },
+      {
+        name: "Эрсдэлийн үнэлгээ нэмэх",
         path: "/admin/add-risk",
         icon: ClipboardPlus,
       },

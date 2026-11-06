@@ -5,17 +5,30 @@
     score: Number,
     description: String,
     level: String,
+    
   });
+
+  const priceOffer = new mongoose.Schema({
+    selectedInsurance: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsuranceProduct",},
+      valuation: Number,
+      feePercentage: Number,
+      feeAmount: Number,
+  })
 
   const riskAssessmentSchema = new mongoose.Schema({
       organization: {
           type:String,
           required:true
       },
-      selectedInsurance: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: "InsuranceProduct",
-        required: true,
+      bitrixDealId: {
+        type: String,
+        required: false,
+      },
+      priceOffers: {
+        type: [priceOffer],
+        default: [],
       },
       user:{
         type: mongoose.Schema.Types.ObjectId,
@@ -25,6 +38,10 @@
       location: {
           type:String,
           required:true
+      },
+      orgEmail: {
+          type: String,
+          required: false
       },
     risks: {
       type: [riskSchema],

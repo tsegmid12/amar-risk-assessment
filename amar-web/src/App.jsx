@@ -6,6 +6,7 @@ import {
   Navigate,
   Outlet,
   useParams,
+  useLocation
 } from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import {useEffect } from "react"
@@ -33,6 +34,15 @@ import ManageUsers from "./components/pages/admin/manageUser";
 import ForgotPassword from "./components/pages/admin/forgotPassword";
 import ForgotPasswordVerify from "./components/pages/admin/forgotPasswordVerify";
 import ResetPassword from "./components/pages/admin/resetPassword";
+import PriceOffer from "./components/pages/admin/priceOffer";
+import AllPriceOffer from "./components/pages/admin/allPriceOffer";   
+
+const ScrollToTop = () => {
+ const { pathname } = useLocation();
+ useEffect(() => {
+   window.scrollTo(0, 0);
+ }, [pathname]);
+}
 
 // ======================================
 // ADMIN ROUTE PROTECTION
@@ -45,9 +55,15 @@ function ProtectedRoute() {
       const decodedToken = jwtDecode(token);
       const currentTime = Date.now() / 1000; 
 
-      if (decodedToken.exp < currentTime) {
+      const logout = () => {
         localStorage.removeItem("token");
-        window.location.href = "/admin/login"; 
+        window.location.href = "/admin/login";
+      }
+
+      const ms = token ? (decodedToken.exp * 1000) - Date.now() : 0;
+
+      if (ms <= 0) {
+        logout();
       }
     }
   }, [])
@@ -139,6 +155,10 @@ function AppContent() {
             element={<AllRiskAssessment />}
           />
 
+          <Route path="price-offers" element={<PriceOffer />}/>
+
+          <Route path="all-price-offers" element={<AllPriceOffer />}/>
+
           <Route path="update-assessment/:id" element={<UpdateAssessment />}
           />
 
@@ -220,6 +240,7 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AppContent />
     </BrowserRouter>
     

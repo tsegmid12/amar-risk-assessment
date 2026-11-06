@@ -15,6 +15,8 @@ import {
   Search,
   CheckCircle2,
   ChevronDown,
+  Wallet,
+  Percent,
 } from "lucide-react";
 
 
@@ -66,6 +68,14 @@ const AddRisk = () => {
   const [selectedInsurance, setSelectedInsurance] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [orgEmail, setOrgEmail] = useState("");
+  const [valuation, setValuation] = useState({});
+  const [insuranceRates, setInsuranceRates] = useState({});
+
+  const formatNumber = (v) => {
+    const digits = String(v).replace(/\D/g, ""); 
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -126,6 +136,9 @@ const AddRisk = () => {
 
   const navigate = useNavigate();
 
+  console.log("Selected Insurance:", selectedInsurance);
+  console.log("Valuation:", valuation);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -136,9 +149,15 @@ const AddRisk = () => {
     }
     const payload = {
       organization: organization.trim(),
-      selectedInsurance: selectedInsurance,
+      priceOffers: selectedInsurance.map((insuranceId) => ({
+        selectedInsurance: insuranceId,
+        valuation: Number(valuation[insuranceId]),
+        feePercentage: Number(insuranceRates[insuranceId]),
+        feeAmount: Number((valuation[insuranceId] || 0) * (insuranceRates[insuranceId] || 0) / 100),
+      })),
       user: id,
       location: orgLocation.trim(),
+      orgEmail: orgEmail.trim(),
       risks: risks.map(({ id, ...risk }) => ({
         ...risk,
         score: Number(risk.score),
@@ -286,6 +305,19 @@ const AddRisk = () => {
                 setError("");
               }}
               placeholder="Байгууллагын байршил оруулна уу"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
+            />
+
+            <label>Байгууллагын имэйл</label>
+            <input
+              type="email"
+              value={orgEmail}
+              onChange={(e) => {
+                setOrgEmail(e.target.value);
+                setSaved(false);
+                setError("");
+              }}
+              placeholder="Байгууллагын имэйл оруулна уу"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
             />
           </section>
@@ -615,6 +647,98 @@ const AddRisk = () => {
                           )}
                         </span>
                       </button>
+                       {isSelected && (
+                        <div className="border-t border-red-100 bg-linear-to-b from-red-50 to-white px-5 py-5 sm:px-7 sm:py-6">
+
+                          <div className="mx-auto max-w-2xl space-y-5">
+
+                            {/* Header */}
+                            <div className="flex  items-center gap-3">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                                <Wallet size={20} />
+                              </div>
+
+                              <div>
+                                <h3 className="text-sm font-bold text-gray-800 sm:text-base">
+                                  Даатгалын нөхцөл
+                                </h3>
+                                <p className="text-xs text-gray-400">
+                                  Хөрөнгийн үнэлгээ болон хураамжийн мэдээлэл
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Inputs */}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+                              {/* Үнэлгээ */}
+                              <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                                  Хөрөнгийн нийт үнэлгээ
+                                  <span className="text-red-500">*</span>
+                                </label>
+
+                                <div className="flex items-center rounded-xl border border-gray-200 bg-white px-3 transition-all duration-200 focus-within:border-red-400 focus-within:ring-4 focus-within:ring-red-500/10">
+
+                                  <Wallet size={18} className="shrink-0 text-gray-400" />
+
+                                  <input
+                                    type="text"
+                                    value={formatNumber(valuation[item._id] || "")}
+                                    onChange={(e) => {setValuation((prev) => ({ ...prev, [item._id]: e.target.value.replace(/\D/g, "") })); setSaved(false); setError("");}}
+                                    placeholder="100000000"
+                                    className="w-full min-w-0 bg-transparent px-3 py-3 text-sm font-medium text-gray-800 outline-none placeholder:font-normal placeholder:text-gray-300"
+                                  />
+
+                                  <span className="text-sm font-bold text-gray-400">
+                                    ₮
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Хураамж */}
+                              <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                                  Хураамжийн хувь
+                                  <span className="text-red-500">*</span>
+                                </label>
+
+                                <div className="flex items-center rounded-xl border border-gray-200 bg-white px-3 transition-all duration-200 focus-within:border-red-400 focus-within:ring-4 focus-within:ring-red-500/10">
+
+                                  <Percent size={18} className="shrink-0 text-gray-400" />
+
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    value={insuranceRates[item._id] || ""}
+                                    onChange={(e) => {setInsuranceRates((prev) => ({ ...prev, [item._id]: e.target.value })); setSaved(false); setError("");}}
+                                    placeholder="1.5"
+                                    className="w-full min-w-0 bg-transparent px-3 py-3 text-sm font-medium text-gray-800 outline-none placeholder:font-normal placeholder:text-gray-300"
+                                  />
+
+                                  <span className="text-sm font-bold text-gray-400">
+                                    %
+                                  </span>
+                                </div>
+                              </div>
+                              {/* Хураамжийн дүн */}
+                              <div>
+                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                                  Хураамжийн дүн
+                                </label>
+
+                                <div className="flex items-center rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-medium text-gray-800 mt-2">
+                                  {formatNumber(valuation[item._id] / 100 * insuranceRates[item._id]) || 0} ₮
+                                </div>
+                              </div>
+
+                            </div>
+
+                          </div>
+                        </div>
+                      )}
                     </li>
                   );
                 })}

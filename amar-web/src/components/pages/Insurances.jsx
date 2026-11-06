@@ -305,14 +305,14 @@ const Insurances = () => {
         </header>
 
         {/* Summary cards */}
-        <section className="mb-8 grid grid-cols-3 gap-4">
+        <section className="mb-8 grid grid-cols-3 gap-5">
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
-            <div className="flex items-center justify-between flex-col md:flex-row ">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl text-red-600 sm:bg-red-50">
-                <Building2 size={21} />
-              </div>
+            <div className="flex items-center justify-between flex-col sm:flex-row ">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl  text-red-600 sm:bg-red-50 ">
+                <Building2 size={24} />
+                </div>
 
-              <span className="rounded-full bg-redч-50 px-2.5 py-1 text-xs font-semibold text-red-700 ">
+              <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 ">
                 Хамгаалалт 
               </span>
             </div>
@@ -327,9 +327,9 @@ const Insurances = () => {
           </div>
 
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
-            <div className="flex items-center justify-between flex-col md:flex-row">
+            <div className="flex items-center justify-between flex-col sm:flex-row">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl sm:bg-green-50 text-green-600">
-                <ShieldCheck size={21} />
+                <ShieldCheck size={24} />
               </div>
 
               <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">
@@ -347,9 +347,9 @@ const Insurances = () => {
           </div>
 
           <div className="group rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/60">
-            <div className="flex items-center justify-between flex-col md:flex-row">
+            <div className="flex items-center justify-between flex-col sm:flex-row">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl sm:bg-blue-50 text-blue-600">
-                <Layers size={21} />
+                <Layers size={24} />
               </div>
 
               <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
@@ -540,41 +540,11 @@ const Insurances = () => {
                         {insurance.name}
                       </h2>
 
-                      <p className="mt-2 text-sm leading-6 text-gray-500">
+                      <p className={`mt-2 text-sm leading-6 cursor-pointer  text-gray-500 ${isActive ? "whitespace-normal" : "truncate"} group-hover:text-gray-700 sm:text-sm`}>
                         {insurance.description}
                       </p>
                     </div>
                   </div>
-
-                  {/* Risk tags */}
-                  {/* <div className="mt-5">
-                    <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                      Хамрах эрсдэл
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {insurance.riskType.slice(0, 4).map((risk, i) => (
-                        <span
-                          key={`${risk}-${i}`}
-                          className="rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-600 transition hover:border-red-100 hover:bg-red-50 hover:text-red-700"
-                        >
-                          {risk}
-                        </span>
-                      ))}
-
-                      {insurance.category.length > 4 && (
-                        <span className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-600">
-                          +{insurance.category.length - 4}
-                        </span>
-                      )}
-
-                      {insurance.category.length === 0 && (
-                        <span className="text-xs text-gray-400">
-                          Эрсдэлийн мэдээлэл байхгүй
-                        </span>
-                      )}
-                    </div>
-                  </div> */}
 
                   {/* Details toggle */}
                   <button
@@ -583,7 +553,7 @@ const Insurances = () => {
                     onClick={() =>
                       setActive(isActive ? null : insurance.id)
                     }
-                    className={`mt-5 flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition duration-200 ${
+                    className={`mt-5 flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition duration-300 ${
                       isActive
                         ? "border-red-100 bg-red-50 text-red-700"
                         : "border-gray-200 bg-white text-gray-700 hover:border-red-200 hover:bg-red-50/50 hover:text-red-700"

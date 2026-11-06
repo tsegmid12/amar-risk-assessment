@@ -75,7 +75,7 @@ function Navbar() {
           </div>
 
           {/* SOCIAL LINKS */}
-          <div className="hidden shrink-0 items-center gap-2 sm:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
             <SocialLink
               href="https://www.instagram.com/amarinsurance"
               src={ig}

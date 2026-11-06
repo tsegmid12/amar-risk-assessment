@@ -6,12 +6,15 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const {Resend} = require('resend');
 require('dotenv').config();
-const cron = require('node-cron');
+const cron = require('node-cron'); 
+const { createProposalDeal } = require('./bitrix');
+const { createPriceOfferDeal } = require('./bitrix');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const InsuranceProduct = require('./models/insuranceProduct');
 const Recomandation = require('./models/recomendation');
 const RiskAssessment = require('./models/riskAssessment');
+const PriceOffer = require('./models/priceOffer');
 const User = require('./models/user');
 const PORT = process.env.PORT 
 const MONGO_URI = process.env.MONGO_URI 
@@ -75,11 +78,30 @@ app.post('/recomendations', async (req, res) => {
 })
 
 
-app.post('/risk-assessments', async (req, res) => {
-    const riskAssessment = await RiskAssessment.create(req.body);
-    res.json(riskAssessment);
-})
+// app.post('/risk-assessments', async (req, res) => {
+//     const riskAssessment = await RiskAssessment.create(req.body);
+//     res.json(riskAssessment);
+// })
 
+app.post('/risk-assessments', async (req, res) => {
+  try {
+    const riskAssessment = await RiskAssessment.create(req.body);
+ 
+    // try {
+    //   const dealId = await createProposalDeal(riskAssessment);
+    //   riskAssessment.bitrixDealId = dealId;
+    //   await riskAssessment.save();
+    //   console.log(`Bitrix24 хэлцэл амжилттай үүсгэгдлээ (RA #${riskAssessment.id}, Deal ID: ${dealId})`);
+    // } catch (e) {
+    //   console.error(`Bitrix24 хэлцэл үүсгэж чадсангүй (RA #${riskAssessment.id}):`, e.message);
+    // }
+ 
+    res.json(riskAssessment);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Хадгалж чадсангүй' });
+  }
+});
 
 app.get('/insurance-products', async (req, res) => {
     const insuranceProducts = await InsuranceProduct.find();
@@ -89,12 +111,12 @@ app.get('/insurance-products', async (req, res) => {
 app.get('/risk-assessments', verifyToken, async (req, res) => {
     const id = req.user.id
 
-    const riskAssessments = await RiskAssessment.find({user: id}).populate('selectedInsurance')
+    const riskAssessments = await RiskAssessment.find({user: id}).populate('priceOffers.selectedInsurance');
     res.json(riskAssessments);
 })
 
 app.get('/riskAssessments/:id', async (req, res) => {
-    const riskAssessment = await RiskAssessment.findById(req.params.id).populate('selectedInsurance');
+    const riskAssessment = await RiskAssessment.findById(req.params.id).populate('priceOffers.selectedInsurance');
     res.json(riskAssessment);
 })
 
@@ -330,6 +352,54 @@ app.put('/reset-password', async (req, res) => {
 app.get('/all-risk-assessments', async (req, res) => {
     const riskAssessments = await RiskAssessment.find().populate('user');
     res.json(riskAssessments);
+})
+
+app.post('/price-offers', async (req, res) => {
+    try{
+        const priceOffer = await PriceOffer.create(req.body);
+        res.json(priceOffer);
+        //   try {
+        //     const dealId = await createPriceOfferDeal(priceOffer);
+        //     priceOffer.bitrixDealId = dealId;
+        //     await priceOffer.save();
+        //     console.log(`Bitrix24 хэлцэл амжилттай үүсгэгдлээ (RA #${priceOffer.id}, Deal ID: ${dealId})`);
+        //     } catch (e) {
+        //     console.error(`Bitrix24 хэлцэл үүсгэж чадсангүй (RA #${priceOffer.id}):`, e.message);
+        //     }
+    } catch (error) {
+        console.error('Error creating price offer', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+
+
+app.get('/all-price-offers', verifyToken, async (req, res) => {
+    try{
+        const userId = req.user.id;
+
+        if(!userId) {
+            return res.status(401).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const priceOffers = await PriceOffer.find({ user: userId }).populate('priceOffers.insuranceId').sort({ createdAt: -1 });
+        res.json(priceOffers);
+    }
+    catch(error){
+        console.error('Error fetching price offers', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+app.get('/priceOffers/:id', async (req, res) => {
+    try{
+        const id = req.params.id;
+        const priceOffer = await PriceOffer.findById(id).populate('priceOffers.insuranceId');
+        res.json(priceOffer);
+    }
+    catch(error){
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 })
 
 module.exports = app;
