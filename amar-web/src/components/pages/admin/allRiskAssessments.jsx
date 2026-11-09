@@ -226,10 +226,9 @@ function OrganizationDetails({ organization, onClose }) {
     ? organization.risks
     : [];
 
-    const selectedInsurance = Array.isArray(organization.priceOffers) && organization.priceOffers.length > 0
-      ? organization.priceOffers.map((offer) => offer)
+    const selectedInsurance = Array.isArray(organization.selectedInsurance)
+      ? organization.selectedInsurance
       : [];
-
 
   const averageScore = risks.length
     ? Math.round(
@@ -264,7 +263,7 @@ function OrganizationDetails({ organization, onClose }) {
                 id="organization-title"
                 className="wrap-break-word text-lg font-bold text-gray-900"
               >
-                {organization.organization}
+                {organization.name}
               </h2>
               <p className="mt-1 text-sm text-gray-500">
                 {organization._id}
@@ -318,9 +317,6 @@ function OrganizationDetails({ organization, onClose }) {
                   className="mt-0.5 shrink-0 text-red-500"
                 />
                 {organization.location}
-              </p>
-              <p className="mt-2 text-sm text-gray-500">
-                {organization.orgEmail}
               </p>
 
               <p className="mt-2 text-xs text-gray-400">
@@ -376,10 +372,7 @@ function OrganizationDetails({ organization, onClose }) {
                         <p className="mt-2 text-xs text-gray-400">
                           Байршил: {risk.location}
                         </p>
-
                       )}
-
-                     
                     </div>
                   );
                 })}
@@ -410,10 +403,9 @@ function OrganizationDetails({ organization, onClose }) {
                         key={insurance._id || insurance.id}
                         className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700"
                       >
-                        <span className="font-semibold">{insurance.name || "Нэргүй бүтээгдэхүүн"}</span>  
-                        <span className="text-gray-400">{insurance.valuation.toLocaleString("mn-MN")}₮ * </span>
-                        <span className="text-gray-400">{insurance.feePercentage}% = </span>
-                        <span className="text-gray-400">{insurance.feeAmount.toLocaleString("mn-MN")}₮</span>
+                        <span className="font-semibold">
+                          {insurance.name || insurance.productName || "Нэргүй бүтээгдэхүүн"}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -824,7 +816,7 @@ const handleDelete = async (organizationId) => {
 
                             <div className="min-w-0">
                               <p className="wrap-break-word font-semibold text-gray-800">
-                                {organization.organization}
+                                {organization.name}
                               </p>
                               <a href={`https://amardaatgal.vercel.app/${organization._id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700">
                                 {organization._id}

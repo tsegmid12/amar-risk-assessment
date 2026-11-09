@@ -20,8 +20,7 @@ async function createProposalDeal(ra) {
       CATEGORY_ID: Number(process.env.BITRIX_SALES_BEFORE_CATEGORY_ID),
       STAGE_ID: process.env.BITRIX_EMAIL_SENT_STAGE_ID,
       COMMENTS: `Вебээс эрсдэлийн үнэлгээ илгээгдсэн (Байгууллага: ${ra.organization})`,
-      ASSIGNED_BY_ID: 32655, 
-
+      ASSIGNED_BY_ID: 32655
     },
   });
 }
@@ -33,9 +32,7 @@ async function createPriceOfferDeal(ra) {
       CATEGORY_ID: Number(process.env.BITRIX_SALES_BEFORE_CATEGORY_ID),
       STAGE_ID: process.env.BITRIX_EMAIL_SENT_STAGE_ID,
       COMMENTS: `Вебээс үнийн санал илгээгдсэн (Байгууллага: ${ra.organization})`,
-      ASSIGNED_BY_ID: 32655,
-      [valuation]: ra.priceOffers.reduce((sum, offer) => sum + offer.valuation, 0),
-      [feePercentage]: ra.priceOffers.reduce((sum, offer) => sum + offer.feePercentage, 0),
+      ASSIGNED_BY_ID: 32655
     }
   })
 }

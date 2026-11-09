@@ -8,15 +8,6 @@
     
   });
 
-  const priceOffer = new mongoose.Schema({
-    selectedInsurance: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InsuranceProduct",},
-      valuation: Number,
-      feePercentage: Number,
-      feeAmount: Number,
-  })
-
   const riskAssessmentSchema = new mongoose.Schema({
       organization: {
           type:String,
@@ -26,8 +17,9 @@
         type: String,
         required: false,
       },
-      priceOffers: {
-        type: [priceOffer],
+      selectedInsurance: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "InsuranceProduct",
         default: [],
       },
       user:{

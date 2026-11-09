@@ -111,12 +111,12 @@ app.get('/insurance-products', async (req, res) => {
 app.get('/risk-assessments', verifyToken, async (req, res) => {
     const id = req.user.id
 
-    const riskAssessments = await RiskAssessment.find({user: id}).populate('priceOffers.selectedInsurance');
+    const riskAssessments = await RiskAssessment.find({user: id}).populate('selectedInsurance');
     res.json(riskAssessments);
 })
 
 app.get('/riskAssessments/:id', async (req, res) => {
-    const riskAssessment = await RiskAssessment.findById(req.params.id).populate('priceOffers.selectedInsurance');
+    const riskAssessment = await RiskAssessment.findById(req.params.id).populate('selectedInsurance');
     res.json(riskAssessment);
 })
 
