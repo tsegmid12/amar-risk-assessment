@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  SquarePen,
   MapPinned,
   Building2,
   Plus,
@@ -10,10 +8,14 @@ import {
   Save,
   ArrowLeft,
   ShieldCheck,
+  ImagePlus,
+  X,
 } from "lucide-react";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;    
+const API_URL = import.meta.env.VITE_API_URL;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // backend-ийн limit-тэй ижил (5MB)
+
 const riskTypes = [
   "Гал түймэр",
   "Цахилгаан",
@@ -26,6 +28,93 @@ const riskTypes = [
   "Бусад",
 ];
 
+// images нь ID string эсвэл populate хийсэн объект байж болно
+const getImageId = (image) =>
+  typeof image === "string" ? image : image?._id;
+
+const getImageUrl = (image) => {
+  const imageId = getImageId(image);
+  return imageId ? `${API_URL}/images/${imageId}` : "";
+};
+
+const getLevel = (score) => {
+  if (score <= 30) return "Бага";
+  if (score <= 40) return "Дунд";
+  if (score <= 60) return "Их";
+  return "Маш их";
+};
+
+// Шинээр сонгосон файлын preview (object URL-ийг чөлөөлнө)
+const NewImagePreview = ({ file, onRemove }) => {
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  return (
+    <div className="relative h-20 w-20">
+      {url && (
+        <img
+          src={url}
+          alt={file.name}
+          className="h-20 w-20 rounded-lg border-2 border-emerald-300 object-cover"
+        />
+      )}
+      <span className="absolute bottom-0 left-0 rounded-tr-md rounded-bl-lg bg-emerald-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+        Шинэ
+      </span>
+      <button
+        type="button"
+        onClick={onRemove}
+        title="Хасах"
+        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
+      >
+        <X size={12} />
+      </button>
+    </div>
+  );
+};
+
+// Өмнө хадгалагдсан зураг
+const ExistingImage = ({ image, onRemove }) => {
+  const url = getImageUrl(image);
+  if (!url) return null;
+
+  return (
+    <div className="relative h-20 w-20">
+      <img
+        src={url}
+        alt="Хадгалагдсан зураг"
+        loading="lazy"
+        className="h-20 w-20 rounded-lg border border-gray-200 object-cover"
+      />
+      <button
+        type="button"
+        onClick={onRemove}
+        title="Зураг устгах"
+        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white shadow hover:bg-red-700"
+      >
+        <X size={12} />
+      </button>
+    </div>
+  );
+};
+
+const newRisk = () => ({
+  _key: crypto.randomUUID(),
+  name: "",
+  type: "",
+  score: 0,
+  description: "",
+  location: "",
+  level: "",
+  images: [], // хадгалагдсан зургийн ID-ууд
+  newFiles: [], // шинээр сонгосон File объектууд (зөвхөн frontend дээр)
+});
+
 const UpdateAssessment = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,6 +122,7 @@ const UpdateAssessment = () => {
   const [assessment, setAssessment] = useState(null);
   const [org, setOrg] = useState("");
   const [location, setLocation] = useState("");
+  const [orgEmail, setOrgEmail] = useState("");
   const [selectedInsurance, setSelectedInsurance] = useState([]);
   const [risks, setRisks] = useState([]);
   const [insuranceProducts, setInsuranceProducts] = useState([]);
@@ -41,8 +131,10 @@ const UpdateAssessment = () => {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
+  const token = localStorage.getItem("token");
+
   const filteredData = insuranceProducts.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
+    (product.name || "").toLowerCase().includes(search.toLowerCase())
   );
 
   useEffect(() => {
@@ -61,6 +153,7 @@ const UpdateAssessment = () => {
 
         setOrg(data.organization || "");
         setLocation(data.location || "");
+        setOrgEmail(data.orgEmail || "");
 
         // ObjectId эсвэл populate хийсэн object аль нь ч байсан ажиллана
         setSelectedInsurance(
@@ -72,11 +165,15 @@ const UpdateAssessment = () => {
         setRisks(
           (data.risks || []).map((risk) => ({
             ...risk,
+            _key: risk._id || crypto.randomUUID(),
+            name: risk.name || "",
             type: risk.type || "",
             score: risk.score ?? 0,
             description: risk.description || "",
             location: risk.location || "",
             level: risk.level || "",
+            images: (risk.images || []).map(getImageId).filter(Boolean),
+            newFiles: [],
           }))
         );
 
@@ -99,35 +196,64 @@ const UpdateAssessment = () => {
     if (id) fetchData();
   }, [id]);
 
-  // Эрсдэл нэмэх
-  const addRisk = () => {
-    setRisks((prev) => [
-      ...prev,
-      {
-        type: "",
-        score: 0,
-        description: "",
-        location: "",
-        level: "",
-      },
-    ]);
-  };
+  const addRisk = () => setRisks((prev) => [...prev, newRisk()]);
 
-  // Эрсдэлийн талбар шинэчлэх
   const updateRisk = (index, field, value) => {
     setRisks((prev) =>
-      prev.map((risk, i) =>
-        i === index ? { ...risk, [field]: value } : risk
-      )
+      prev.map((risk, i) => (i === index ? { ...risk, [field]: value } : risk))
     );
   };
 
-  // Эрсдэл устгах
   const removeRisk = (index) => {
     setRisks((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Даатгал сонгох / болиулах
+  // Шинэ зураг нэмэх (төрөл, хэмжээг шалгана)
+  const addNewFiles = (index, fileList) => {
+    const valid = [];
+
+    for (const file of Array.from(fileList)) {
+      if (!file.type.startsWith("image/")) {
+        setError(`"${file.name}" зураг биш байна.`);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_SIZE) {
+        setError(`"${file.name}" 5MB-аас том байна.`);
+        continue;
+      }
+      valid.push(file);
+    }
+
+    if (valid.length === 0) return;
+
+    setRisks((prev) =>
+      prev.map((risk, i) =>
+        i === index ? { ...risk, newFiles: [...risk.newFiles, ...valid] } : risk
+      )
+    );
+  };
+
+  const removeNewFile = (riskIndex, fileIndex) => {
+    setRisks((prev) =>
+      prev.map((risk, i) =>
+        i === riskIndex
+          ? { ...risk, newFiles: risk.newFiles.filter((_, f) => f !== fileIndex) }
+          : risk
+      )
+    );
+  };
+
+  // Хадгалагдсан зургийг эрсдэлээс салгана (submit хийгээгүй бол хадгалагдахгүй)
+  const removeExistingImage = (riskIndex, imageId) => {
+    setRisks((prev) =>
+      prev.map((risk, i) =>
+        i === riskIndex
+          ? { ...risk, images: risk.images.filter((img) => img !== imageId) }
+          : risk
+      )
+    );
+  };
+
   const toggleInsurance = (insuranceId) => {
     setSelectedInsurance((prev) =>
       prev.includes(insuranceId)
@@ -136,16 +262,20 @@ const UpdateAssessment = () => {
     );
   };
 
-  // Эрсдэлийн түвшинг оноогоор шинэчлэх
-  const getLevel = (score) => {
-    if (score <= 30) return "Бага";
-    if (score <= 40) return "Дунд";
-    if (score <= 60) return "Их";
-    return "Маш их";
+  // Нэг зургийг /upload руу илгээж, ID-г нь авна
+  const uploadImages = async (files) => {
+    const ids = [];
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append("image", file); // backend-ийн upload.single("image")-тэй ижил нэр
+      const res = await axios.post(`${API_URL}/upload`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      ids.push(res.data._id);
+    }
+    return ids;
   };
 
-  
-  // MongoDB руу шинэчлэх
   const handleUpdate = async (e) => {
     e.preventDefault();
     setError("");
@@ -155,30 +285,39 @@ const UpdateAssessment = () => {
       return;
     }
 
-    if (selectedInsurance.length === 0) {
-      setError("Дор хаяж нэг даатгалын бүтээгдэхүүн сонгоно уу.");
-      return;
-    }
-
     try {
       setSaving(true);
 
+      // 1. Шинэ зургуудыг upload хийж, хуучин ID-уудтай нэгтгэнэ
+      const risksPayload = await Promise.all(
+        risks.map(async (risk) => {
+          const uploadedIds = await uploadImages(risk.newFiles);
+
+          return {
+            name: risk.name,
+            type: risk.type,
+            score: Number(risk.score),
+            description: risk.description,
+            location: risk.location,
+            level: getLevel(Number(risk.score)),
+            images: [...risk.images, ...uploadedIds],
+          };
+        })
+      );
+
+      // 2. Үнэлгээг шинэчилнэ
       const payload = {
         organization: org.trim(),
         location: location.trim(),
+        orgEmail: orgEmail.trim(),
         selectedInsurance,
-        risks: risks.map((risk) => ({
-          type: risk.type,
-          score: Number(risk.score),
-          description: risk.description,
-          location: risk.location,
-          level: getLevel(Number(risk.score)),
-        })),
+        risks: risksPayload,
       };
 
       const response = await axios.put(
         `${API_URL}/riskAssessments/${id}`,
-        payload
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setAssessment(response.data);
@@ -225,9 +364,7 @@ const UpdateAssessment = () => {
         <div className="mb-6">
           <div className="mb-3 text-sm text-gray-400">
             Админ / Эрсдэлийн үнэлгээ /
-            <span className="ml-1 font-medium text-red-500">
-              Шинэчлэх
-            </span>
+            <span className="ml-1 font-medium text-red-500">Шинэчлэх</span>
           </div>
 
           <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
@@ -278,6 +415,19 @@ const UpdateAssessment = () => {
                   />
                 </div>
               </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Байгууллагын имэйл
+                </label>
+                <input
+                  type="email"
+                  value={orgEmail}
+                  onChange={(e) => setOrgEmail(e.target.value)}
+                  placeholder="Байгууллагын имэйл"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-50"
+                />
+              </div>
             </div>
           </section>
 
@@ -290,14 +440,19 @@ const UpdateAssessment = () => {
             <p className="mb-5 text-sm text-gray-500">
               Шаардлагатай бүтээгдэхүүнүүдийг сонгоно уу.
             </p>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Бүтээгдэхүүн хайх..." className="mb-4 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Бүтээгдэхүүн хайх..."
+              className="mb-4 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
 
             {insuranceProducts.length === 0 ? (
               <p className="text-sm text-gray-400">
                 Даатгалын бүтээгдэхүүн олдсонгүй.
               </p>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto max-h-80" >
+              <div className="grid max-h-80 gap-3 overflow-auto sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filteredData.map((product) => (
                   <label
                     key={product._id}
@@ -317,7 +472,6 @@ const UpdateAssessment = () => {
                       <span className="block font-semibold text-gray-800">
                         {product.name}
                       </span>
-                      
                     </span>
                   </label>
                 ))}
@@ -347,7 +501,7 @@ const UpdateAssessment = () => {
             <div className="space-y-5">
               {risks.map((risk, index) => (
                 <div
-                  key={risk._id || index}
+                  key={risk._key}
                   className="rounded-xl border border-gray-200 p-4 sm:p-5"
                 >
                   <div className="mb-4 flex items-center justify-between">
@@ -371,23 +525,24 @@ const UpdateAssessment = () => {
                         Эрсдэлийн төрөл
                       </label>
 
-                        <select
+                      <select
                         value={risk.type}
-                        onChange={(e) => updateRisk(index, "type", e.target.value)}
+                        onChange={(e) =>
+                          updateRisk(index, "type", e.target.value)
+                        }
                         required
                         className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-50"
-                        >
+                      >
                         <option value="" disabled>
-                            Эрсдэлийн төрөл сонгох
+                          Эрсдэлийн төрөл сонгох
                         </option>
 
                         {riskTypes.map((type) => (
-                            <option key={type} value={type}>
+                          <option key={type} value={type}>
                             {type}
-                            </option>
+                          </option>
                         ))}
-                        </select>
-
+                      </select>
                     </div>
 
                     <div>
@@ -405,7 +560,10 @@ const UpdateAssessment = () => {
                             "score",
                             e.target.value === ""
                               ? ""
-                              : Math.min(100, Math.max(0, Number(e.target.value)))
+                              : Math.min(
+                                  100,
+                                  Math.max(0, Number(e.target.value))
+                                )
                           )
                         }
                         required
@@ -421,33 +579,81 @@ const UpdateAssessment = () => {
                       </p>
                     </div>
 
-                    <div>
+                    <div className="sm:col-span-2">
                       <label className="mb-1.5 block text-sm font-medium text-gray-600">
                         Тайлбар
                       </label>
                       <textarea
+                        rows={3}
                         value={risk.description}
                         onChange={(e) =>
                           updateRisk(index, "description", e.target.value)
                         }
                         placeholder="Эрсдэлийн тайлбар"
-                        className="w-full rounded-lg border border-gray-200 px-3 py-4 outline-none focus:border-red-400"
+                        className="w-full rounded-lg border border-gray-200 px-3 py-3 outline-none focus:border-red-400"
                       />
+                    </div>
+
+                    {/* Зураг */}
+                    <div className="sm:col-span-2">
+                      <label className="mb-1.5 block text-sm font-medium text-gray-600">
+                        Эрсдэлийн зураг{" "}
+                        <span className="text-xs font-normal text-gray-400">
+                          (нэг зураг дээд тал нь 5MB)
+                        </span>
+                      </label>
+
+                      {(risk.images.length > 0 || risk.newFiles.length > 0) && (
+                        <div className="mb-3 flex flex-wrap gap-3">
+                          {risk.images.map((imageId) => (
+                            <ExistingImage
+                              key={imageId}
+                              image={imageId}
+                              onRemove={() =>
+                                removeExistingImage(index, imageId)
+                              }
+                            />
+                          ))}
+
+                          {risk.newFiles.map((file, fileIndex) => (
+                            <NewImagePreview
+                              key={`${file.name}-${file.lastModified}-${fileIndex}`}
+                              file={file}
+                              onRemove={() => removeNewFile(index, fileIndex)}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600">
+                        <ImagePlus size={18} />
+                        Зураг нэмэх
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            addNewFiles(index, e.target.files);
+                            e.target.value = ""; // ижил файлыг дахин сонгох боломжтой болгоно
+                          }}
+                        />
+                      </label>
                     </div>
                   </div>
                 </div>
               ))}
+
               <div className="flex justify-end">
                 <button
-                type="button"
-                onClick={addRisk}
-                className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                  type="button"
+                  onClick={addRisk}
+                  className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
                 >
                   <Plus size={18} />
                   Эрсдэл нэмэх
                 </button>
               </div>
-               
             </div>
           </section>
 

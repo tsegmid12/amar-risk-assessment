@@ -9,6 +9,8 @@ require('dotenv').config();
 const cron = require('node-cron'); 
 const { createProposalDeal } = require('./bitrix');
 const { createPriceOfferDeal } = require('./bitrix');
+const {Readable} = require('stream');
+const path = require('path');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const InsuranceProduct = require('./models/insuranceProduct');
@@ -18,15 +20,20 @@ const PriceOffer = require('./models/priceOffer');
 const User = require('./models/user');
 const PORT = process.env.PORT 
 const MONGO_URI = process.env.MONGO_URI 
-
-
-
+const upload = require('./middleware/imageUpload');
+const RiskImage = require('./models/riskImage');
 
 mongoose.connect(MONGO_URI).then(() => {
     console.log('Connected to MongoDB');
 }).catch((err) => {
     console.error('Error connecting to MongoDB', err);
 });
+
+const getBucket = () => {
+    return new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+        bucketName: 'riskImages'
+    });
+}
 
 app.use(cors());
 app.use(express.json());
@@ -88,6 +95,7 @@ app.post('/risk-assessments', async (req, res) => {
     const riskAssessment = await RiskAssessment.create(req.body);
  
     try {
+        await riskAssessment.populate('user');
       const dealId = await createProposalDeal(riskAssessment);
       riskAssessment.bitrixDealId = dealId;
       await riskAssessment.save();
@@ -401,5 +409,65 @@ app.get('/priceOffers/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 })
+
+app.post("/upload", upload.single("image"), async (req, res) => {
+    try{
+        if(!req.file) {
+            return res.status(400).json({ success: false, message: 'Зураг оруулаагүй байна' });
+        }
+
+        const bucket = getBucket();
+        const filename = `${Date.now()}-${req.file.originalname}`;
+        const uploadStream = bucket.openUploadStream(filename, {
+            contentType: req.file.mimetype,
+        });
+
+        Readable.from(req.file.buffer).pipe(uploadStream).on("error", async (err) => {
+            console.error("Error uploading file to GridFS:", err);
+            res.status(500).json({ success: false, message: "Зураг хадгалахад алдаа гарлаа" });
+        }).on("finish", async () => {
+            const riskImage = new RiskImage({
+                filename: filename,
+                originalName: req.file.originalname,
+                contentType: req.file.mimetype,
+                size: req.file.size,
+                gridFsId: uploadStream.id,
+            });
+            await riskImage.save();
+            res.json(riskImage);
+        });
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        res.status(500).json({ success: false, message: "Зураг хадгалахад алдаа гарлаа" });
+    }
+})
+app.get('/images/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Буруу зураг ID' });
+    }
+
+    const riskImage = await RiskImage.findById(id);
+    if (!riskImage) {
+      return res.status(404).json({ success: false, message: 'Зураг олдсонгүй' });
+    }
+
+    res.set('Content-Type', riskImage.contentType);
+    res.set('Cache-Control', 'public, max-age=86400');
+
+    const bucket = getBucket();
+    bucket
+      .openDownloadStream(riskImage.gridFsId)
+      .on('error', (err) => {
+        console.error('GridFS download error:', err);
+        if (!res.headersSent) res.status(500).end();
+      })
+      .pipe(res);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
 
 module.exports = app;

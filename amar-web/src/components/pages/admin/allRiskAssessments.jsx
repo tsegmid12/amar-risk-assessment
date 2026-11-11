@@ -1,12 +1,12 @@
-
 import axios from "axios";
 import { useMemo, useState, useEffect } from "react";
-import  { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Building2,
   ShieldAlert,
   TrendingUp,
+  ChevronLeft,
   ChevronRight,
   Eye,
   X,
@@ -24,12 +24,21 @@ import {
   Pencil,
   AlertCircle,
   ShieldCheck,
-  Trash 
+  Trash,
 } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+// Нийтэд харагдах хуудасны хаяг (desktop/mobile хоёуланд нэг л хаяг ашиглана)
+const PUBLIC_URL = "https://amardaatgal.vercel.app";
 
 const filters = ["Бүгд", "Бага", "Дунд", "Их", "Маш их"];
+
+// images нь ID string эсвэл populate хийсэн объект байж болно
+const getImageUrl = (image) => {
+  const imageId = typeof image === "string" ? image : image?._id;
+  return imageId ? `${API_URL}/images/${imageId}` : "";
+};
 
 const getRiskLevel = (score) => {
   const value = Number(score) || 0;
@@ -66,16 +75,9 @@ const riskStyles = {
 const getRiskIcon = (name = "") => {
   const value = String(name).toLowerCase();
 
-  if (value.includes("гал") || value.includes("fire")) {
-    return Flame;
-  }
+  if (value.includes("гал") || value.includes("fire")) return Flame;
 
-  if (
-    value.includes("цахилгаан") ||
-    value.includes("electric")
-  ) {
-    return Zap;
-  }
+  if (value.includes("цахилгаан") || value.includes("electric")) return Zap;
 
   if (
     value.includes("үер") ||
@@ -97,17 +99,13 @@ const getRiskIcon = (name = "") => {
   return ShieldAlert;
 };
 
-
 // API-аас ирсэн өгөгдлийг нэг хэлбэрт оруулна.
 const normalizeOrganization = (item, index) => {
   const rawRisks = Array.isArray(item.risks) ? item.risks : [];
 
   const risks = rawRisks.map((risk, riskIndex) => {
     const name = risk.name || risk.type || "Бусад эрсдэл";
-    const score = Math.min(
-      100,
-      Math.max(0, Number(risk.score) || 0)
-    );
+    const score = Math.min(100, Math.max(0, Number(risk.score) || 0));
 
     return {
       ...risk,
@@ -119,10 +117,7 @@ const normalizeOrganization = (item, index) => {
   });
 
   const riskAverage = risks.length
-    ? Math.round(
-        risks.reduce((sum, risk) => sum + risk.score, 0) /
-          risks.length
-      )
+    ? Math.round(risks.reduce((sum, risk) => sum + risk.score, 0) / risks.length)
     : 0;
 
   const scoreValue = Number(item.score);
@@ -175,9 +170,7 @@ function ScoreBar({ score = 0 }) {
   return (
     <div className="min-w-28">
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className={`text-sm font-bold ${style.text}`}>
-          {value}
-        </span>
+        <span className={`text-sm font-bold ${style.text}`}>{value}</span>
         <span className="text-xs text-gray-400">/ 100</span>
       </div>
 
@@ -190,6 +183,7 @@ function ScoreBar({ score = 0 }) {
     </div>
   );
 }
+
 function StatCard({ title, value, subtitle, icon: Icon, color }) {
   const colors = {
     red: "bg-red-50 text-red-600",
@@ -219,27 +213,103 @@ function StatCard({ title, value, subtitle, icon: Icon, color }) {
   );
 }
 
+// Зураг дээр дарахад нээгдэх томруулсан цонх (Esc, ← → товч дэмжинэ)
+function ImageLightbox({ urls, startIndex = 0, onClose }) {
+  const [index, setIndex] = useState(startIndex);
+  const hasMany = urls.length > 1;
+
+  const prev = () => setIndex((i) => (i - 1 + urls.length) % urls.length);
+  const next = () => setIndex((i) => (i + 1) % urls.length);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft" && urls.length > 1) prev();
+      if (event.key === "ArrowRight" && urls.length > 1) next();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urls.length]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Зураг харах"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Хаах"
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/25"
+      >
+        <X size={22} />
+      </button>
+
+      {hasMany && (
+        <button
+          type="button"
+          onClick={prev}
+          aria-label="Өмнөх зураг"
+          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/25 sm:left-6"
+        >
+          <ChevronLeft size={26} />
+        </button>
+      )}
+
+      <img
+        src={urls[index]}
+        alt={`Зураг ${index + 1}`}
+        className="max-h-[85vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
+      />
+
+      {hasMany && (
+        <button
+          type="button"
+          onClick={next}
+          aria-label="Дараах зураг"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/25 sm:right-6"
+        >
+          <ChevronRight size={26} />
+        </button>
+      )}
+
+      {hasMany && (
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white">
+          {index + 1} / {urls.length}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function OrganizationDetails({ organization, onClose }) {
+  // { urls: [...], index: n } эсвэл null
+  const [lightbox, setLightbox] = useState(null);
+
   if (!organization) return null;
 
-  const risks = Array.isArray(organization.risks)
-    ? organization.risks
-    : [];
+  const risks = Array.isArray(organization.risks) ? organization.risks : [];
 
-    const selectedInsurance = Array.isArray(organization.selectedInsurance)
-      ? organization.selectedInsurance
-      : [];
+  const selectedInsurance = Array.isArray(organization.selectedInsurance)
+    ? organization.selectedInsurance
+    : [];
 
   const averageScore = risks.length
     ? Math.round(
-        risks.reduce(
-          (sum, risk) => sum + (Number(risk.score) || 0),
-          0
-        ) / risks.length
+        risks.reduce((sum, risk) => sum + (Number(risk.score) || 0), 0) /
+          risks.length
       )
     : 0;
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/40 p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
@@ -265,9 +335,7 @@ function OrganizationDetails({ organization, onClose }) {
               >
                 {organization.name}
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                {organization._id}
-              </p>
+              <p className="mt-1 text-sm text-gray-500">{organization._id}</p>
             </div>
           </div>
 
@@ -288,9 +356,7 @@ function OrganizationDetails({ organization, onClose }) {
 
               <p className="mt-2 text-2xl font-bold text-gray-900">
                 {organization.score}
-                <span className="text-sm font-medium text-gray-400">
-                  /100
-                </span>
+                <span className="text-sm font-medium text-gray-400">/100</span>
               </p>
 
               <div className="mt-2">
@@ -303,33 +369,24 @@ function OrganizationDetails({ organization, onClose }) {
               <p className="mt-2 text-2xl font-bold text-gray-900">
                 {risks.length}
               </p>
-              <p className="mt-1 text-xs text-gray-400">
-                Үнэлгээнд хамрагдсан
-              </p>
+              <p className="mt-1 text-xs text-gray-400">Үнэлгээнд хамрагдсан</p>
             </div>
 
             <div className="rounded-xl bg-gray-50 p-4">
               <p className="text-xs text-gray-500">Байршил</p>
 
               <p className="mt-2 flex items-start gap-1.5 wrap-break-word text-sm font-semibold text-gray-800">
-                <MapPin
-                  size={15}
-                  className="mt-0.5 shrink-0 text-red-500"
-                />
+                <MapPin size={15} className="mt-0.5 shrink-0 text-red-500" />
                 {organization.location}
               </p>
 
-              <p className="mt-2 text-xs text-gray-400">
-                {organization.date}
-              </p>
+              <p className="mt-2 text-xs text-gray-400">{organization.date}</p>
             </div>
           </div>
 
           <div>
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h3 className="font-bold text-gray-900">
-                Эрсдэлийн дэлгэрэнгүй
-              </h3>
+              <h3 className="font-bold text-gray-900">Эрсдэлийн дэлгэрэнгүй</h3>
 
               <span className="text-xs text-gray-400">
                 {risks.length} үзүүлэлт
@@ -343,7 +400,7 @@ function OrganizationDetails({ organization, onClose }) {
 
                   return (
                     <div
-                      key={risk._id || risk.name}
+                      key={risk.id}
                       className="rounded-xl border border-gray-100 p-4"
                     >
                       <div className="mb-3 flex items-center justify-between gap-3">
@@ -373,16 +430,40 @@ function OrganizationDetails({ organization, onClose }) {
                           Байршил: {risk.location}
                         </p>
                       )}
+
+                      {Array.isArray(risk.images) && risk.images.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {(() => {
+                            const urls = risk.images
+                              .map(getImageUrl)
+                              .filter(Boolean);
+
+                            return urls.map((url, index) => (
+                              <button
+                                key={url}
+                                type="button"
+                                onClick={() => setLightbox({ urls, index })}
+                                aria-label={`Зураг ${index + 1} томруулах`}
+                                className="cursor-zoom-in overflow-hidden rounded-lg"
+                              >
+                                <img
+                                  src={url}
+                                  alt={`Эрсдэл ${index + 1}`}
+                                  loading="lazy"
+                                  className="h-16 w-16 border border-gray-200 object-cover transition hover:scale-105 hover:opacity-90"
+                                />
+                              </button>
+                            ));
+                          })()}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center">
-                <ShieldCheck
-                  size={28}
-                  className="mx-auto text-gray-300"
-                />
+                <ShieldCheck size={28} className="mx-auto text-gray-300" />
                 <p className="mt-3 text-sm text-gray-500">
                   Эрсдэлийн дэлгэрэнгүй мэдээлэл бүртгэгдээгүй байна.
                 </p>
@@ -390,47 +471,40 @@ function OrganizationDetails({ organization, onClose }) {
             )}
           </div>
 
-          <div className="border border-gray-200 rounded-xl p-4">
-            {
-              selectedInsurance.length > 0 ? (
-                <div>
-                  <h3 className="mb-2 text-sm font-semibold text-gray-900">
-                    Сонгогдсон даатгалын бүтээгдэхүүн
-                  </h3>
-                  <ul className="space-y-2">
-                    {selectedInsurance.map((insurance) => (
-                      <li
-                        key={insurance._id || insurance.id}
-                        className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700"
-                      >
-                        <span className="font-semibold">
-                          {insurance.name || insurance.productName || "Нэргүй бүтээгдэхүүн"}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <ShieldCheck
-
-                    size={28}
-                    className="mx-auto text-gray-300"
-                  />
-                  <p className="mt-3 text-sm text-gray-500">
-                    Сонгогдсон даатгалын бүтээгдэхүүн бүртгэгдээгүй байна.
-                  </p>
-                </div>
-              )
-            }
+          <div className="rounded-xl border border-gray-200 p-4">
+            {selectedInsurance.length > 0 ? (
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-gray-900">
+                  Сонгогдсон даатгалын бүтээгдэхүүн
+                </h3>
+                <ul className="space-y-2">
+                  {selectedInsurance.map((insurance, index) => (
+                    <li
+                      key={insurance._id || insurance.id || index}
+                      className="flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+                    >
+                      <span className="font-semibold">
+                        {insurance.name ||
+                          insurance.productName ||
+                          "Нэргүй бүтээгдэхүүн"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="text-center">
+                <ShieldCheck size={28} className="mx-auto text-gray-300" />
+                <p className="mt-3 text-sm text-gray-500">
+                  Сонгогдсон даатгалын бүтээгдэхүүн бүртгэгдээгүй байна.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border border-red-100 bg-red-50/70 p-4">
             <div className="flex items-start gap-3">
-              <Activity
-                size={19}
-                className="mt-0.5 shrink-0 text-red-600"
-              />
+              <Activity size={19} className="mt-0.5 shrink-0 text-red-600" />
 
               <div>
                 <p className="text-sm font-semibold text-gray-900">
@@ -458,10 +532,21 @@ function OrganizationDetails({ organization, onClose }) {
         </div>
       </section>
     </div>
+
+    {lightbox && (
+      <ImageLightbox
+        urls={lightbox.urls}
+        startIndex={lightbox.index}
+        onClose={() => setLightbox(null)}
+      />
+    )}
+    </>
   );
 }
 
 export default function Organizations() {
+  const navigate = useNavigate();
+
   const [organizations, setOrganizations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Бүгд");
@@ -469,7 +554,6 @@ export default function Organizations() {
   const [sortBy, setSortBy] = useState("default");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     let isMounted = true;
@@ -484,6 +568,7 @@ export default function Organizations() {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+
         // API массив эсвэл объект доторх массив буцаасан
         const responseData = response.data;
 
@@ -496,9 +581,7 @@ export default function Organizations() {
             [];
 
         if (!Array.isArray(data)) {
-          throw new Error(
-            "API-аас байгууллагын массив өгөгдөл ирсэнгүй."
-          );
+          throw new Error("API-аас байгууллагын массив өгөгдөл ирсэнгүй.");
         }
 
         const normalizedData = data.map(normalizeOrganization);
@@ -506,7 +589,6 @@ export default function Organizations() {
         if (isMounted) {
           setOrganizations(normalizedData);
         }
-
       } catch (err) {
         console.error("Error fetching organizations:", err);
 
@@ -514,8 +596,7 @@ export default function Organizations() {
           setError(
             err.response
               ? `API алдаа: ${err.response.status}. Backend сервер болон API замаа шалгана уу.`
-              : err.message ||
-                  "Байгууллагын мэдээлэл татахад алдаа гарлаа."
+              : err.message || "Байгууллагын мэдээлэл татахад алдаа гарлаа."
           );
         }
       } finally {
@@ -540,6 +621,7 @@ export default function Organizations() {
         const searchableText = [
           organization.name,
           organization._id,
+          organization.registration,
           organization.location,
         ]
           .filter(Boolean)
@@ -556,9 +638,7 @@ export default function Organizations() {
       })
       .sort((a, b) => {
         if (sortBy === "default") return 0;
-        return sortBy === "score-asc"
-          ? a.score - b.score
-          : b.score - a.score
+        return sortBy === "score-asc" ? a.score - b.score : b.score - a.score;
       });
   }, [organizations, searchTerm, selectedFilter, sortBy]);
 
@@ -566,8 +646,7 @@ export default function Organizations() {
   const averageRisk = organizations.length
     ? Math.round(
         organizations.reduce(
-          (sum, organization) =>
-            sum + (Number(organization.score) || 0),
+          (sum, organization) => sum + (Number(organization.score) || 0),
           0
         ) / organizations.length
       )
@@ -581,24 +660,36 @@ export default function Organizations() {
     (organization) => organization.score <= 30
   ).length;
 
-const navigate = useNavigate();
+  const handleDelete = async (organizationId) => {
+    if (
+      !window.confirm("Та энэ эрсдэлийн үнэлгээг устгахдаа итгэлтэй байна уу?")
+    ) {
+      return;
+    }
 
-const handleDelete = async (organizationId) => {
-  try{
-    const confirmDelete = window.confirm("Та энэ эрсдэлийн үнэлгээг устгахдаа итгэлтэй байна уу?");
-    if(!confirmDelete) return;
+    try {
+      await axios.delete(`${API_URL}/riskAssessments/${organizationId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-    await axios.delete(`${API_URL}/riskAssessments/${organizationId}`)
-    navigate(0)
-  } catch (error) {
-    console.error("Error deleting organization:", error);
-    alert("Алдаа гарлаа")
-  }
-}
+      // Хуудсыг дахин ачаалахгүйгээр жагсаалтаас хасна
+      setOrganizations((prev) =>
+        prev.filter((organization) => organization._id !== organizationId)
+      );
+    } catch (err) {
+      console.error("Error deleting organization:", err);
+      alert(err.response?.data?.message || "Алдаа гарлаа");
+    }
+  };
 
+  const goToEdit = (organizationId) => {
+    navigate(`/admin/update-assessment/${organizationId}`);
+  };
 
   return (
-    <main className="min-h-screen bg-[#f7f8fa] ">
+    <main className="min-h-screen bg-[#f7f8fa]">
       <div className="mx-auto w-full min-w-0 space-y-7 p-4 sm:p-6 md:px-8 lg:p-10 lg:pl-85 lg:pr-20">
         <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
@@ -721,12 +812,11 @@ const handleDelete = async (organizationId) => {
 
             <label className="flex items-center gap-2 text-sm text-gray-500">
               Эрэмбэлэх
-
               <select
                 value={sortBy}
                 onChange={(event) => setSortBy(event.target.value)}
                 className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 outline-none focus:border-red-300"
-              > 
+              >
                 <option value="default">-</option>
                 <option value="score-desc">Эрсдэл өндөрөөс</option>
                 <option value="score-asc">Эрсдэл багатайгаас</option>
@@ -738,9 +828,7 @@ const handleDelete = async (organizationId) => {
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 sm:px-6">
             <div>
-              <h2 className="font-bold text-gray-900">
-                Байгууллагын жагсаалт
-              </h2>
+              <h2 className="font-bold text-gray-900">Байгууллагын жагсаалт</h2>
               <p className="mt-1 text-xs text-gray-400">
                 Байгууллага бүрийн үнэлгээ
               </p>
@@ -753,29 +841,21 @@ const handleDelete = async (organizationId) => {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center px-5 py-16">
-              <LoaderCircle
-                size={32}
-                className="animate-spin text-red-600"
-              />
+              <LoaderCircle size={32} className="animate-spin text-red-600" />
               <p className="mt-4 text-sm text-gray-500">
                 Байгууллагын мэдээлэл татаж байна...
               </p>
             </div>
           ) : error ? (
             <div className="px-5 py-16 text-center">
-              <AlertCircle
-                size={32}
-                className="mx-auto text-red-500"
-              />
+              <AlertCircle size={32} className="mx-auto text-red-500" />
               <h3 className="mt-4 font-bold text-gray-800">
                 Мэдээлэл татахад алдаа гарлаа
               </h3>
               <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-gray-500">
                 {error}
               </p>
-              <p className="mt-2 text-xs text-gray-400">
-                API: {API_URL}
-              </p>
+              <p className="mt-2 text-xs text-gray-400">API: {API_URL}</p>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
@@ -798,15 +878,15 @@ const handleDelete = async (organizationId) => {
                       <th className="px-5 py-4">Үнэлгээний огноо</th>
                       <th className="px-5 py-4">Шинэчлэх</th>
                       <th className="px-5 py-4 text-center">Дэлгэрэнгүй</th>
-                      <th></th>
+                      <th className="px-5 py-4 text-center">Устгах</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-gray-100">
                     {filteredOrganizations.map((organization) => (
                       <tr
-                        key={organization._id}
-                        className="transition hover:bg-red-50/30 "
+                        key={organization.id}
+                        className="transition hover:bg-red-50/30"
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -818,7 +898,12 @@ const handleDelete = async (organizationId) => {
                               <p className="wrap-break-word font-semibold text-gray-800">
                                 {organization.name}
                               </p>
-                              <a href={`https://amardaatgal.vercel.app/${organization._id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:text-blue-700">
+                              <a
+                                href={`${PUBLIC_URL}/${organization._id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-500 hover:text-blue-700"
+                              >
                                 {organization._id}
                               </a>
                             </div>
@@ -840,9 +925,7 @@ const handleDelete = async (organizationId) => {
                         </td>
 
                         <td className="px-5 py-4">
-                          <RiskBadge
-                            level={getRiskLevel(organization.score)}
-                          />
+                          <RiskBadge level={getRiskLevel(organization.score)} />
                         </td>
 
                         <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-500">
@@ -850,27 +933,36 @@ const handleDelete = async (organizationId) => {
                         </td>
 
                         <td className="px-5 py-4 text-right">
-                          <button type="button" onClick={() => {navigate(`/admin/update-assessment/${organization._id}`)}} className="flex justify-center items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                          <button
+                            type="button"
+                            onClick={() => goToEdit(organization._id)}
+                            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
                           >
-                            <Pencil size={15} />  
-                            Засах</button>
+                            <Pencil size={15} />
+                            Засах
+                          </button>
                         </td>
 
                         <td className="px-5 py-4 text-right">
                           <button
                             type="button"
-                            onClick={() =>
-                              setSelectedOrganization(organization)
-                            }
+                            onClick={() => setSelectedOrganization(organization)}
                             className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
                           >
                             <Eye size={15} />
                             Дэлгэрэнгүй
                           </button>
                         </td>
-                        <td>
-                          <button type="button" onClick={() => handleDelete(organization._id)} className='pr-6'> 
-                            <Trash size={20} className="text-red-600 hover:text-red-800 texs-sm" />
+
+                        <td className="px-5 py-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(organization._id)}
+                            aria-label="Устгах"
+                            title="Устгах"
+                            className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 hover:text-red-800"
+                          >
+                            <Trash size={19} />
                           </button>
                         </td>
                       </tr>
@@ -896,14 +988,17 @@ const handleDelete = async (organizationId) => {
                           {organization.name}
                         </h3>
 
-                        <a href={`https://amardaatgal.netlify.app/${organization._id}`} className="mt-1 text-xs text-blue-400">
+                        <a
+                          href={`${PUBLIC_URL}/${organization._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 block break-all text-xs text-blue-500"
+                        >
                           {organization._id}
                         </a>
 
                         <div className="mt-3">
-                          <RiskBadge
-                            level={getRiskLevel(organization.score)}
-                          />
+                          <RiskBadge level={getRiskLevel(organization.score)} />
                         </div>
                       </div>
                     </div>
@@ -922,13 +1017,31 @@ const handleDelete = async (organizationId) => {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setSelectedOrganization(organization)
-                        }
+                        onClick={() => setSelectedOrganization(organization)}
                         className="flex shrink-0 items-center gap-1 text-sm font-semibold text-red-600"
                       >
                         Дэлгэрэнгүй
                         <ChevronRight size={16} />
+                      </button>
+                    </div>
+
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => goToEdit(organization._id)}
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Pencil size={14} />
+                        Засах
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(organization._id)}
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      >
+                        <Trash size={14} />
+                        Устгах
                       </button>
                     </div>
                   </article>

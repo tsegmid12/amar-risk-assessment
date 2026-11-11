@@ -37,6 +37,7 @@ const ManageUser = () => {
   const [query, setQuery] = useState('');
   const roles = ['superadmin', 'admin'];
   const [savingId, setSavingId] = useState(null);
+  const [bitrixId, setBitrixId] = useState('')
 
   const handleDelete = async (userId) => {
     const comfirmDelete = window.confirm('Та энэ хэрэглэгчийг устгахдаа итгэлтэй байна уу?');
@@ -170,6 +171,7 @@ const ManageUser = () => {
               <tr>
                 <th scope="col" className="px-6 py-3.5 font-medium">Имэйл</th>
                 <th scope="col" className="px-6 py-3.5 font-medium">Статус</th>
+                <th scope="col" className="px-6 py-3.5 text-right font-medium">Bitrix ID</th>
                 <th scope="col" className="px-6 py-3.5 text-right font-medium">Эрсдэлийн үнэлгээ</th>
                 <th scope="col" className="px-6 py-3.5 text-right font-medium">Үйлдэл</th>
               </tr>
@@ -219,6 +221,12 @@ const ManageUser = () => {
                             ))}
                         </select>
                     </td>
+
+                    <td className=''>
+                      <input onChange={(e) => setBitrixId(e.target.value)} type='number' className="w-30 border border-gray-300 rounded-xl p-2" placeholder={""}/>
+                      <button onClick={() => handleUpdate(user._id, {bitrixId: bitrixId})} disabled={bitrixId === ""}   className="ml-2 rounded-xl border px-3 py-1 text-xs text-gray-500 transition-colors hover:text-green-500 disabled:cursor-not-allowed disabled:opacity-40">Хадгалах</button>
+                    </td>
+
 
                     <td className="px-6 py-4 text-right font-semibold tabular-nums text-slate-700">
                       {user.assessmentCount}

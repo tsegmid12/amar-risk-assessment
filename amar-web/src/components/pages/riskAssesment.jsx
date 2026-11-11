@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -14,15 +13,18 @@ import {
   AlertTriangle,
   MapPin,
   Building2,
+  ChevronLeft,
   ChevronRight,
-  Image as ImageIcon,
   Activity,
   Flame,
   Zap,
   Droplets,
   Earth,
   ShieldAlert,
+  X,
 } from "lucide-react";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const RISK_LEVELS = [
   {
@@ -87,27 +89,49 @@ const getRiskIcon = (type = "") => {
   return Activity;
 };
 
+// images нь ID string, populate хийсэн объект, эсвэл бүтэн URL байж болно
+const getImageUrl = (image) => {
+  if (!image) return "";
+  if (typeof image === "string") {
+    return /^(https?:|data:|blob:)/.test(image)
+      ? image
+      : `${API_URL}/images/${image}`;
+  }
+  return image._id ? `${API_URL}/images/${image._id}` : "";
+};
+
+// Байгууллагын нэрийг янз бүрийн хэлбэрээс аюулгүй авна
+const getOrganizationName = (org) => {
+  if (typeof org.organization === "string" && org.organization.trim()) {
+    return org.organization;
+  }
+  return (
+    org.organizationName ||
+    org.Organization ||
+    org.organization?.name ||
+    org.name ||
+    "Байгууллага"
+  );
+};
+
 export default function RiskAssessment() {
   const { id } = useParams();
 
   const [riskData, setRiskData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedImage, setSelectedImage] = useState(null);
+  // { urls: [...], index: n } эсвэл null
+  const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
-
-    const API_URL = import.meta.env.VITE_API_URL;
 
     const fetchRiskData = async () => {
       setLoading(true);
       setError("");
 
       try {
-        const response = await axios.get(
-          `${API_URL}/riskAssessments/${id}`
-        );
+        const response = await axios.get(`${API_URL}/riskAssessments/${id}`);
 
         if (cancelled) return;
 
@@ -136,41 +160,37 @@ export default function RiskAssessment() {
   }, [id]);
 
   const allRisks = riskData.flatMap((org) =>
-    (Array.isArray(org.risks) ? org.risks : []).map((risk, index) => ({
-      ...risk,
-      _id: risk._id || `${org._id || "org"}-${index}`,
-      name: risk.name || risk.type || "Нэргүй эрсдэл",
-      type: risk.type || risk.name || "Бусад",
-      score: Math.max(
-        0,
-        Math.min(100, Number(risk.score) || 0)
-      ),
-      organization:
-        org.organizationName ||
-        org.Organization ||
-        org.organization?.name ||
-        org.name ||
-        "Байгууллага",
-      image: risk.image || risk.imageUrl || risk.photo || "",
-    }))
+    (Array.isArray(org.risks) ? org.risks : []).map((risk, index) => {
+      // Шинэ бүтэц: images массив. Хуучин бүтэц: нэг image/imageUrl/photo
+      const rawImages = Array.isArray(risk.images) ? risk.images : [];
+      const legacyImage = risk.image || risk.imageUrl || risk.photo;
+      const images = [...rawImages, ...(legacyImage ? [legacyImage] : [])]
+        .map(getImageUrl)
+        .filter(Boolean);
+
+      return {
+        ...risk,
+        _id: risk._id || `${org._id || "org"}-${index}`,
+        name: risk.name || risk.type || "Нэргүй эрсдэл",
+        type: risk.type || risk.name || "Бусад",
+        score: Math.max(0, Math.min(100, Number(risk.score) || 0)),
+        organization: getOrganizationName(org),
+        images,
+      };
+    })
   );
 
   const averageScore = allRisks.length
     ? Math.round(
-        allRisks.reduce((sum, risk) => sum + risk.score, 0) /
-          allRisks.length
+        allRisks.reduce((sum, risk) => sum + risk.score, 0) / allRisks.length
       )
     : 0;
 
   const averageRisk = getRisk(averageScore);
 
-  const highRiskCount = allRisks.filter(
-    (risk) => risk.score >= 61
-  ).length;
+  const highRiskCount = allRisks.filter((risk) => risk.score >= 61).length;
 
-  const safeCount = allRisks.filter(
-    (risk) => risk.score <= 30
-  ).length;
+  const safeCount = allRisks.filter((risk) => risk.score <= 30).length;
 
   const chartData = [
     {
@@ -199,13 +219,8 @@ export default function RiskAssessment() {
     return (
       <main className="flex min-h-[60vh] items-center justify-center bg-slate-50 px-4">
         <div className={`${cardClass} w-full max-w-md p-8 text-center`}>
-          <AlertTriangle
-            className="mx-auto mb-4 text-rose-500"
-            size={40}
-          />
-          <h2 className="text-lg font-bold text-slate-800">
-            Алдаа гарлаа
-          </h2>
+          <AlertTriangle className="mx-auto mb-4 text-rose-500" size={40} />
+          <h2 className="text-lg font-bold text-slate-800">Алдаа гарлаа</h2>
           <p className="mt-2 text-sm text-slate-500">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -221,7 +236,6 @@ export default function RiskAssessment() {
   return (
     <main className="min-h-screen bg-slate-50/80 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-
         {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -278,7 +292,6 @@ export default function RiskAssessment() {
 
         {/* Main dashboard */}
         <section className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.5fr)]">
-
           {/* Overall score */}
           <div className={`${cardClass} flex flex-col p-5 sm:p-7`}>
             <div className="flex items-start justify-between gap-3">
@@ -308,11 +321,7 @@ export default function RiskAssessment() {
                   endAngle={-270}
                   barSize={18}
                 >
-                  <PolarAngleAxis
-                    type="number"
-                    domain={[0, 100]}
-                    tick={false}
-                  />
+                  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
                   <RadialBar
                     dataKey="value"
                     cornerRadius={20}
@@ -384,14 +393,14 @@ export default function RiskAssessment() {
             {allRisks.length === 0 ? (
               <EmptyState />
             ) : (
-              <div className="s">
+              <div className="space-y-6">
                 {allRisks.map((item) => {
                   const risk = getRisk(item.score);
                   const Icon = getRiskIcon(item.type);
 
                   return (
                     <div key={item._id} className="group">
-                      <div className="mb-4 flex items-center justify-between gap-3">
+                      <div className="mb-3 flex items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600 transition-colors group-hover:bg-rose-50 group-hover:text-rose-600">
                             <Icon size={18} />
@@ -437,10 +446,7 @@ export default function RiskAssessment() {
 
               <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {RISK_LEVELS.map((level) => (
-                  <div
-                    key={level.label}
-                    className="flex items-center gap-2"
-                  >
+                  <div key={level.label} className="flex items-center gap-2">
                     <span
                       className="h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: level.color }}
@@ -480,53 +486,34 @@ export default function RiskAssessment() {
                 <RiskCard
                   key={item._id}
                   item={item}
-                  onViewImage={setSelectedImage}
+                  onViewImage={(index) =>
+                    setLightbox({ urls: item.images, index })
+                  }
                 />
               ))}
             </div>
           )}
         </section>
 
-        {/* Image modal */}
-        {selectedImage && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <div
-              className="relative w-full max-w-3xl rounded-2xl bg-white p-3 shadow-2xl"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute right-5 top-5 z-10 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-slate-700 shadow hover:bg-white"
-              >
-                Хаах ✕
-              </button>
-
-              <img
-                src={selectedImage}
-                alt="Эрсдэлийн зураг"
-                className="max-h-[80vh] w-full rounded-xl object-contain"
-              />
-            </div>
-          </div>
+        {/* Image lightbox */}
+        {lightbox && (
+          <ImageLightbox
+            urls={lightbox.urls}
+            startIndex={lightbox.index}
+            onClose={() => setLightbox(null)}
+          />
         )}
       </div>
     </main>
   );
 }
 
-function SummaryCard({
-  icon: Icon,
-  title,
-  value,
-  description,
-  iconClass,
-}) {
+function SummaryCard({ icon: Icon, title, value, description, iconClass }) {
   return (
     <div className={`${cardClass} flex items-center gap-4 p-5`}>
-      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}>
+      <div
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}
+      >
         <Icon size={23} />
       </div>
 
@@ -571,14 +558,10 @@ function RiskCard({ item, onViewImage }) {
 
       <div className="mt-5 rounded-xl bg-slate-50 p-4">
         <div className="mb-2 flex items-center justify-between gap-3">
-          <span className="text-sm text-slate-500">
-            Эрсдэлийн үнэлгээ
-          </span>
+          <span className="text-sm text-slate-500">Эрсдэлийн үнэлгээ</span>
           <span className={`text-lg font-bold tabular-nums ${risk.text}`}>
             {item.score}
-            <span className="text-sm font-medium text-slate-400">
-              /100
-            </span>
+            <span className="text-sm font-medium text-slate-400">/100</span>
           </span>
         </div>
 
@@ -595,17 +578,14 @@ function RiskCard({ item, onViewImage }) {
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
             Тайлбар
           </p>
-          <p className="wrap-break-word text-sm leading-6 text-slate-600">
+          <p className="wrap-break-word whitespace-pre-line text-sm leading-6 text-slate-600">
             {item.description || "Тайлбар оруулаагүй байна."}
           </p>
         </div>
 
         {item.location && (
           <div className="flex items-start gap-2 border-t border-slate-100 pt-3">
-            <MapPin
-              size={16}
-              className="mt-0.5 shrink-0 text-slate-400"
-            />
+            <MapPin size={16} className="mt-0.5 shrink-0 text-slate-400" />
             <span className="wrap-break-word text-sm text-slate-500">
               {item.location}
             </span>
@@ -613,16 +593,109 @@ function RiskCard({ item, onViewImage }) {
         )}
       </div>
 
-      {item.image ? (
-        <button
-          onClick={() => onViewImage(item.image)}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
-        >
-          <ImageIcon size={17} />
-          Зураг харах
-        </button>
-      ) : null}
+      {item.images.length > 0 && (
+        <div className="mt-4 border-t border-slate-100 pt-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            Зураг ({item.images.length})
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {item.images.map((url, index) => (
+              <button
+                key={url}
+                type="button"
+                onClick={() => onViewImage(index)}
+                aria-label={`Зураг ${index + 1} томруулах`}
+                className="cursor-zoom-in overflow-hidden rounded-xl border border-slate-200"
+              >
+                <img
+                  src={url}
+                  alt={`${item.name} ${index + 1}`}
+                  loading="lazy"
+                  className="h-20 w-20 object-cover transition hover:scale-105 hover:opacity-90"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
+  );
+}
+
+// Зураг дээр дарахад нээгдэх томруулсан цонх (Esc, ← → товч дэмжинэ)
+function ImageLightbox({ urls, startIndex = 0, onClose }) {
+  const [index, setIndex] = useState(startIndex);
+  const hasMany = urls.length > 1;
+
+  const prev = () => setIndex((i) => (i - 1 + urls.length) % urls.length);
+  const next = () => setIndex((i) => (i + 1) % urls.length);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft" && urls.length > 1) prev();
+      if (event.key === "ArrowRight" && urls.length > 1) next();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urls.length]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Зураг харах"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Хаах"
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2.5 text-white transition hover:bg-white/25"
+      >
+        <X size={22} />
+      </button>
+
+      {hasMany && (
+        <button
+          type="button"
+          onClick={prev}
+          aria-label="Өмнөх зураг"
+          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/25 sm:left-6"
+        >
+          <ChevronLeft size={26} />
+        </button>
+      )}
+
+      <img
+        src={urls[index]}
+        alt={`Зураг ${index + 1}`}
+        className="max-h-[85vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
+      />
+
+      {hasMany && (
+        <button
+          type="button"
+          onClick={next}
+          aria-label="Дараах зураг"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/25 sm:right-6"
+        >
+          <ChevronRight size={26} />
+        </button>
+      )}
+
+      {hasMany && (
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white">
+          {index + 1} / {urls.length}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -632,9 +705,7 @@ function EmptyState() {
       <div className="mb-3 rounded-2xl bg-slate-100 p-3 text-slate-400">
         <ShieldCheck size={28} />
       </div>
-      <h3 className="font-semibold text-slate-700">
-        Мэдээлэл байхгүй байна
-      </h3>
+      <h3 className="font-semibold text-slate-700">Мэдээлэл байхгүй байна</h3>
       <p className="mt-1 text-sm text-slate-400">
         Эрсдэлийн мэдээлэл нэмэгдсэний дараа энд харагдана.
       </p>

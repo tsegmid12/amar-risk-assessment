@@ -5,7 +5,10 @@
     score: Number,
     description: String,
     level: String,
-    
+    images: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RiskImage"
+    }]
   });
 
   const riskAssessmentSchema = new mongoose.Schema({
