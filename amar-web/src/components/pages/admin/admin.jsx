@@ -7,16 +7,10 @@ import {
   ShieldCheck,
   ClipboardCheck,
   Building2,
-  AlertTriangle,
-  Plus,
-  ArrowUpRight,
-  Flame,
-  Zap,
-  Droplets,
+  BadgeDollarSign,
   Activity,
   ChevronRight,
-  FileText,
-  Clock,
+  ArrowUpRight,
   Eye,
   TrendingUp,
 } from "lucide-react";
@@ -25,6 +19,7 @@ const AdminHome = () => {
   const navigate = useNavigate();
   const [riskAssessments, setRiskAssessments] = useState([]);
   const [insurances, setInsurances] =   useState([]);
+  const [priceOffers, setPriceOffers] = useState([]);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const user = jwtDecode(localStorage.getItem("token"));
@@ -54,8 +49,23 @@ const AdminHome = () => {
       }
     };
 
+    const fetchPriceOffers = async () => {
+      try{
+        const response = await axios.get(`${API_URL}/all-price-offers`,{
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+        setPriceOffers(response.data);
+      }
+      catch (error) {
+        console.error("Error fetching price offers:", error);
+      }
+    }
+
     fetchRiskAssessments();
     fetchInsurances();
+    fetchPriceOffers();
   }, []);
 
   // Жишээ өгөгдөл. Дараа нь API-аас авна.
@@ -75,6 +85,14 @@ const AdminHome = () => {
       icon: ClipboardCheck,
       color: "blue",
       path: "/admin/all-risk-assessment",
+    },
+     {
+      title: "Үнийн санал",
+      value: (priceOffers?.length ?? 0).toString(),
+      description: "Нийт бүртгэгдсэн үнийн санал",
+      icon: BadgeDollarSign,
+      color: "violet",
+      path: "/admin/all-price-offers",
     },
   ];
 
@@ -170,7 +188,7 @@ const AdminHome = () => {
             <TrendingUp size={20} className="text-gray-400" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-3">
             {stats.map((stat) => {
               const Icon = stat.icon;
 
@@ -178,8 +196,7 @@ const AdminHome = () => {
                 <button
                   key={stat.title}
                   onClick={() => navigate(stat.path)}
-                  className={`group rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${colorStyles[stat.color].hover}`}
-                >
+                  className={`group rounded-2xl border border-gray-200 bg-white p-5 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${colorStyles[stat.color].hover}`}>
                   <div className="flex items-start justify-between">
                     <div
                       className={`flex h-12 w-12 items-center justify-center rounded-xl ${colorStyles[stat.color].icon}`}
