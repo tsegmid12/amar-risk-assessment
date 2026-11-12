@@ -56,6 +56,7 @@ function ProtectedRoute() {
     const logout = () => {
       localStorage.removeItem("token");
       window.location.href = "/admin/login";
+      window.alert("Таны нэвтрэх эрх дууссан байна. Дахин нэвтэрнэ үү.");
     };
 
     // Token байхгүй бол шууд logout
