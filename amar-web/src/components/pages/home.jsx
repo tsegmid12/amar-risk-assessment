@@ -935,7 +935,7 @@ export default function Home() {
           </div>
 
           {/* INSURANCE LIST — бүх мэдээлэл шууд харагдана */}
-          <div className="grid grid-cols-2 gap-5 space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 space-y-5">
             {filteredData.map((item, index) => {
               const itemId = item._id || item.id || index;
               const itemCategories = getCategories(item.category);
