@@ -148,7 +148,7 @@ app.post('/login', async (req, res) => {
         if(!user.isVerified) {
             return res.status(401).json({ success: false, message: 'Имэйл хаяг баталгаажуулаагүй байна.' });
         }
-        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '2h' });
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '10s' });
         res.json({ success: true, user, token });
     } 
     if(!user) { 
