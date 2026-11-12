@@ -32,7 +32,7 @@ const menuItems = [
       },
       {
         name: "Үнийн санал",
-        path: "/admin/price-offers",
+        path: "/admin/all-price-offers",
         icon: BadgeDollarSign,
       },
       {
@@ -52,7 +52,7 @@ const menuItems = [
     items: [
      {
         name: " Үнийн санал нэмэх",
-        path: "/admin/all-price-offers",
+        path: "/admin/price-offers",
         icon: BadgePlus,
      },
       {
