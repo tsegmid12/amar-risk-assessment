@@ -52,39 +52,22 @@ function ProtectedRoute() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    const logout = () => {
-      localStorage.removeItem("token");
-      window.location.href = "/admin/login";
-    };
-
-    // Token байхгүй бол шууд logout
-    if (!token) {
-      logout();
-      return;
-    }
-
-    try {
+    if (token) {
       const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000; 
 
-      const ms = decodedToken.exp * 1000 - Date.now();
-
-      // Token хугацаа дууссан бол
-      if (ms <= 0) {
-        logout();
-        return;
+      const logout = () => {
+        localStorage.removeItem("token");
+        window.location.href = "/admin/login";
       }
 
-      // Token дуусах үед автоматаар logout
-      const timeout = setTimeout(logout, ms);
+      const ms = token ? (decodedToken.exp * 1000) - Date.now() : 0;
 
-      return () => clearTimeout(timeout);
-
-    } catch (error) {
-      logout();
+      if (ms <= 0) {
+        logout();
+      }
     }
-  }, []);
-  
+  }, [])
   let user = null;
 
   try {
