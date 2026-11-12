@@ -6,7 +6,6 @@ import {
   Plus,
   Save,
   ClipboardList,
-  Activity,  
   CheckCircle2, Wallet, Percent, ShoppingBag
 } from "lucide-react";
 
@@ -141,7 +140,7 @@ const AddRisk = () => {
 
           <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-              <Activity size={24} />
+              <Wallet size={24} />
             </div>
             <div>
               <p className="text-sm text-gray-500">Нийт хураамж</p>
