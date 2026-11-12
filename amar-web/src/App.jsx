@@ -50,46 +50,41 @@ const ScrollToTop = () => {
 // ======================================
 function ProtectedRoute() {
 
-  
-useEffect(() => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    window.location.href = "/admin/login";
-    return;
-  }
-
-  try {
-    const decodedToken = jwtDecode(token);
-    const currentTime = Date.now();
-    const expirationTime = decodedToken.exp * 1000;
-    const ms = expirationTime - currentTime;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
     const logout = () => {
       localStorage.removeItem("token");
       window.location.href = "/admin/login";
-      window.alert("Таны нэвтрэх эрхийн хугацаа дууссан байна. Дахин нэвтэрнэ үү.");
     };
 
-    // Token аль хэдийн дууссан бол
-    if (ms <= 0) {
+    // Token байхгүй бол шууд logout
+    if (!token) {
       logout();
       return;
     }
 
-    // Token дуусах хүртэл хүлээгээд logout хийх
-    const timeout = setTimeout(() => {
+    try {
+      const decodedToken = jwtDecode(token);
+
+      const ms = decodedToken.exp * 1000 - Date.now();
+
+      // Token хугацаа дууссан бол
+      if (ms <= 0) {
+        logout();
+        return;
+      }
+
+      // Token дуусах үед автоматаар logout
+      const timeout = setTimeout(logout, ms);
+
+      return () => clearTimeout(timeout);
+
+    } catch (error) {
       logout();
-    }, ms);
-
-    return () => clearTimeout(timeout);
-
-  } catch (error) {
-    localStorage.removeItem("token");
-    window.location.href = "/admin/login";
-  }
-}, []);
-
+    }
+  }, []);
+  
   let user = null;
 
   try {
