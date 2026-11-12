@@ -156,16 +156,16 @@ function Invoice({ items = [], organizationName, onClose }) {
           className="flex max-h-[96vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         >
           {/* MODAL CONTROLS (PRINT ҮЕД ХАРАГДАХГҮЙ) */}
-          <div className="invoice-no-print flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
+          <div className="invoice-no-print flex  items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
             <div className="flex items-center gap-2 font-bold text-slate-800">
               <FileCheck2 size={18} className="text-red-500" />
               <span>Төлбөрийн Нэхэмжлэх Харах</span>
             </div>
 
-            <div>
+            {/* <div>
               <input className="border" placeholder="Регистр" />
               <input className="border" placeholder="Утасны дугаар" />
-            </div>
+            </div> */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
