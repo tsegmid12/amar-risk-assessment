@@ -146,15 +146,15 @@ const AddRisk = () => {
             <div>
               <p className="text-sm text-gray-500">Нийт хураамж</p>
               <p className="mt-1 text-2xl font-bold text-gray-900">
-                {formatNumber(selectedInsurance.reduce((total, insuranceId) => {
-                  const val = valuation[insuranceId] || 0;
-                  const qty = quantity[insuranceId] || 1;
-                  const rate = insuranceRates[insuranceId] || 0;
-                  return total + (val * qty * rate) / 100;
-                }) || 0)} ₮
-                <span className="ml-1 text-sm font-medium text-gray-400">
-                  /100
-                </span>
+                {formatNumber(
+                  selectedInsurance.reduce((total, insuranceId) => {
+                    const val = Number(valuation[insuranceId]) || 0;
+                    const qty = Number(quantity[insuranceId]) || 1;
+                    const rate = Number(insuranceRates[insuranceId]) || 0;
+
+                    return total + (val * qty * rate) / 100;
+                  }, 0)
+                )} ₮
               </p>
             </div>
           </div>
