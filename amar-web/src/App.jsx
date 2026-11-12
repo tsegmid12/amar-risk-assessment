@@ -35,7 +35,8 @@ import ForgotPassword from "./components/pages/admin/forgotPassword";
 import ForgotPasswordVerify from "./components/pages/admin/forgotPasswordVerify";
 import ResetPassword from "./components/pages/admin/resetPassword";
 import PriceOffer from "./components/pages/admin/priceOffer";
-import AllPriceOffer from "./components/pages/admin/allPriceOffer";   
+import AllPriceOffer from "./components/pages/admin/allPriceOffer";  
+import AdditionalService from "./components/pages/admin/additionalService"; 
 
 const ScrollToTop = () => {
  const { pathname } = useLocation();
@@ -149,6 +150,8 @@ function AppContent() {
             path="add-insurance"
             element={<AddInsurance />}
           />
+
+          <Route path="additional-services" element={<AdditionalService />} />
 
           <Route
             path="all-risk-assessment"

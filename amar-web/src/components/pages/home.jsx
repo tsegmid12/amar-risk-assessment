@@ -21,6 +21,7 @@ import {
 
 import {
   ShieldCheck,
+  ShoppingCart,
   Building2,
   TrendingUp,
   Car,
@@ -160,6 +161,11 @@ function Invoice({ items = [], organizationName, onClose }) {
               <FileCheck2 size={18} className="text-red-500" />
               <span>Төлбөрийн Нэхэмжлэх Харах</span>
             </div>
+
+            <div>
+              <input className="border" placeholder="Регистр" />
+              <input className="border" placeholder="Утасны дугаар" />
+            </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -186,7 +192,7 @@ function Invoice({ items = [], organizationName, onClose }) {
             <div className="flex justify-between items-start border-b-2 border-red-500 pb-6">
               <div>
                 <div className="flex items-center gap-1.5 text-red-600 font-black text-2xl tracking-wider">
-                  <img src={logo} alt="Logo" className="h-10 w-auto" />
+                  <img src={logo} alt="Logo" className="h-14 w-auto" />
                 </div>
                 <div className="mt-3 text-xs leading-relaxed text-slate-600">
                   <p><strong className="text-slate-800">Нэр:</strong> АМАР ДААТГАЛ ХХК</p>
@@ -197,13 +203,14 @@ function Invoice({ items = [], organizationName, onClose }) {
               </div>
 
               <div className="text-right">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Нэхэмжлэх</h1>
-                <p className="mt-1 text-sm font-bold text-red-600">№ 291</p>
+                <h1 className="text-3xl font-semibold">Нэхэмжлэх</h1>
+                <p className="mt-1 text-sm font-bold">№ 291</p>
+                <p className="mt-1 text-sm text-slate-500">Нэхэмжилсэн огноо {new Date().toLocaleDateString()}</p>
                 <div className="mt-3 text-xs leading-relaxed text-slate-600">
-                  <p><strong className="text-slate-800">То Нэр:</strong> {organizationName || "МЭРГЭНДЭНЗЭН"}</p>
+                  <p><strong className="text-slate-800">То Нэр:</strong> {organizationName}</p>
                   <p><strong className="text-slate-800">РД:</strong> 5812968</p>
                   <p><strong className="text-slate-800">Утасны дугаар:</strong> +976 9903 8010</p>
-                  <p><strong className="text-slate-800">Төлбөр төлөх хугацаа:</strong> 14/10/2026</p>
+                  <p><strong className="text-slate-800">Төлбөр төлөх хугацаа:</strong>{new Date().toLocaleDateString()}</p>
                 </div>
               </div>
             </div>
@@ -238,7 +245,7 @@ function Invoice({ items = [], organizationName, onClose }) {
                         <td className="p-3 font-medium text-slate-800">
                           {item.insuranceId?.name || "ГЭНЭТИЙН ОСЛЫН ДААТГАЛ (88C2600962)"}
                         </td>
-                        <td className="p-3 text-center">{item.quantity || 4}</td>
+                        <td className="p-3 text-center">{item.quantity || 1}</td>
                         <td className="p-3 text-right text-slate-600">
                           {formatMoney(item.valuation || 100000)}
                         </td>
@@ -357,20 +364,17 @@ function InfoList({ title, items, icon: Icon, tone, open = true, from = "left" }
     </div>
   );
 }
-
 // Товч дарахад "Хамрах хүрээ" ба "Нэмэлт үйлчилгээ" нь animation-тай нээгдэж/хураагдана
-function ExpandableDetails({ coverage, additionalServices, className = "" }) {
-  const [open, setOpen] = useState(false);
+function ExpandableDetails({ coverage, open, onToggle, className = "" }) {
 
   const coverageLines = toLines(coverage);
-  const serviceLines = toLines(additionalServices);
 
   return (
     <div className={className}>
       <button
         type="button"
         aria-expanded={open}
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={onToggle}
         className={`group flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-300 ${
           open
             ? "border-red-200 bg-red-50 text-red-600"
@@ -402,7 +406,7 @@ function ExpandableDetails({ coverage, additionalServices, className = "" }) {
         }`}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="">
             <InfoList
               title="Хамрах хүрээ"
               items={coverageLines}
@@ -410,14 +414,6 @@ function ExpandableDetails({ coverage, additionalServices, className = "" }) {
               tone="red"
               open={open}
               from="left"
-            />
-            <InfoList
-              title="Нэмэлт үйлчилгээ"
-              items={serviceLines}
-              icon={Gift}
-              tone="green"
-              open={open}
-              from="right"
             />
           </div>
         </div>
@@ -483,6 +479,7 @@ export default function Home() {
   const [error, setError] = useState("");
 
   const [invoice, setInvoice] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   /* ---------------------------------------------------------
      FETCH DATA
@@ -938,7 +935,7 @@ export default function Home() {
           </div>
 
           {/* INSURANCE LIST — бүх мэдээлэл шууд харагдана */}
-          <div className="space-y-5">
+          <div className="grid grid-cols-2 gap-5 space-y-5">
             {filteredData.map((item, index) => {
               const itemId = item._id || item.id || index;
               const itemCategories = getCategories(item.category);
@@ -952,7 +949,7 @@ export default function Home() {
 
                   <div className="p-5 sm:p-7">
                     {/* HEADER */}
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-4 mb-4">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-500 text-white shadow-md shadow-red-500/25 sm:h-14 sm:w-14">
                         <CategoryIcon
                           category={itemCategories[0]}
@@ -978,18 +975,23 @@ export default function Home() {
                           )}
                         </div>
 
-                        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-500 sm:text-[15px]">
+                        <p className={`mt-2 whitespace-pre-line text-sm leading-6 text-slate-500 sm:text-[15px] line-clamp-2`}>
                           {item.description || "Тайлбар оруулаагүй байна."}
                         </p>
                       </div>
                     </div>
 
                     {/* DETAILS (animation-тай нээгдэнэ) */}
-                    <ExpandableDetails
-                      className="mt-6"
-                      coverage={item.coverage}
-                      additionalServices={item.additionalServices}
-                    />
+                     <ExpandableDetails
+                        coverage={item.coverage}
+                        additionalServices={item.additionalServices}
+                        open={expandedId === item._id}
+                        onToggle={() =>
+                          setExpandedId((prev) =>
+                            prev === item._id ? null : item._id
+                          )
+                        }
+                      />
                   </div>
                 </article>
               );
@@ -1048,7 +1050,7 @@ export default function Home() {
               <div className="min-w-0">
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold ring-1 ring-white/25">
                   <CheckCircle2 size={14} />
-                  Үнийн санал бэлэн
+                  Даатгалын бүтээгдэхүүний үнийн санал 
                 </span>
 
                 <p className="mt-4 text-sm font-medium text-red-100">
@@ -1149,7 +1151,7 @@ export default function Home() {
                     </div>
 
                     {insurance.description && (
-                      <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-500">
+                      <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-500 ">
                         {insurance.description}
                       </p>
                     )}
@@ -1159,11 +1161,13 @@ export default function Home() {
                       className="mt-5"
                       coverage={insurance.coverage}
                       additionalServices={insurance.additionalServices}
+                      open={expandedId === item._id}
+                      onToggle={() =>setExpandedId((prev) => (prev === item._id ? null : item._id))}
                     />
 
                     {/* PRICE */}
                     <div className="mt-auto pt-5">
-                      <div className="grid grid-cols-3 divide-x divide-slate-200 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-100">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-slate-200 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-100">
                         <div className="p-3.5 sm:p-4">
                           <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 sm:text-xs">
                             <Wallet size={13} />
@@ -1171,6 +1175,16 @@ export default function Home() {
                           </p>
                           <p className="mt-2 text-sm font-bold text-emerald-600 sm:text-lg">
                             {formatMoney(item.valuation)}
+                          </p>
+                        </div>
+
+                        <div className="p-3.5 sm:p-4">
+                          <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 sm:text-xs">
+                            <ShoppingCart size={13} />
+                            Тоо хэмжээ
+                          </p>
+                          <p className="mt-2 text-sm font-bold text-emerald-600 sm:text-lg">
+                            {item.quantity || 1}
                           </p>
                         </div>
 

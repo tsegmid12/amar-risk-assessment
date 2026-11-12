@@ -7,7 +7,7 @@ import {
   Save,
   ClipboardList,
   Activity,  
-  CheckCircle2, Wallet, Percent,
+  CheckCircle2, Wallet, Percent, ShoppingBag
 } from "lucide-react";
 
 
@@ -36,6 +36,7 @@ const AddRisk = () => {
   const [orgEmail, setOrgEmail] = useState("");
   const [valuation, setValuation] = useState({});
   const [insuranceRates, setInsuranceRates] = useState({});
+  const [quantity, setQuantity] = useState({});
 
   const formatNumber = (v) => {
     const digits = String(v).replace(/\D/g, ""); 
@@ -87,8 +88,9 @@ const AddRisk = () => {
       priceOffers: selectedInsurance.map((insurance) => ({
         insuranceId: insurance,
         valuation: valuation[insurance] || 0,
+        quantity: quantity[insurance] || 1,
         feePercentage: insuranceRates[insurance] || 0,
-          feeAmount: (valuation[insurance] || 0) * (insuranceRates[insurance] || 0) / 100,
+          feeAmount: (valuation[insurance] * (quantity[insurance] || 1) || 0) * (insuranceRates[insurance] || 0) / 100,
         })),
       user: id,
     };
@@ -379,7 +381,7 @@ const AddRisk = () => {
                      {isSelected && (
                         <div className="border-t border-red-100 bg-linear-to-b from-red-50 to-white px-5 py-5 sm:px-7 sm:py-6">
 
-                          <div className="mx-auto max-w-2xl space-y-5">
+                          <div className="mx-auto max-w-4xl space-y-5">
 
                             {/* Header */}
                             <div className="flex  items-center gap-3">
@@ -398,7 +400,7 @@ const AddRisk = () => {
                             </div>
 
                             {/* Inputs */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid:cols-2 lg:grid-cols-4">
 
                               {/* Үнэлгээ */}
                               <div className="space-y-2">
@@ -422,6 +424,30 @@ const AddRisk = () => {
                                   <span className="text-sm font-bold text-gray-400">
                                     ₮
                                   </span>
+                                </div>
+                              </div>
+
+                              {/* Тоо хэмжээ */}
+
+                              {/* Хураамж */}
+                              <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                                  Тоо хэмжээ
+                                  <span className="text-red-500">*</span>
+                                </label>
+
+                                <div className="flex items-center rounded-xl border border-gray-200 bg-white px-3 transition-all duration-200 focus-within:border-red-400 focus-within:ring-4 focus-within:ring-red-500/10">
+
+                                  <ShoppingBag size={18} className="shrink-0 text-gray-400" />
+
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={quantity[item._id] || ""}
+                                    onChange={(e) => {setQuantity((prev) => ({ ...prev, [item._id]: e.target.value })); setSaved(false); setError("");}}
+                                    placeholder="1"
+                                    className="w-full min-w-0 bg-transparent px-3 py-3 text-sm font-medium text-gray-800 outline-none placeholder:font-normal placeholder:text-gray-300"
+                                  />
                                 </div>
                               </div>
 
@@ -459,7 +485,7 @@ const AddRisk = () => {
                                 </label>
 
                                 <div className="flex items-center rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-medium text-gray-800 mt-2">
-                                  {formatNumber(valuation[item._id] / 100 * insuranceRates[item._id]) || 0} ₮
+                                  {formatNumber((valuation[item._id] * quantity[item._id]) / 100 * insuranceRates[item._id]) || 0} ₮
                                 </div>
                               </div>
 

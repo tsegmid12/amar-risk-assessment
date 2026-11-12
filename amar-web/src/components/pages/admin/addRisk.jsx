@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Check,
+  Upload,
   X,
 } from "lucide-react";
 
@@ -54,7 +55,7 @@ const initialRisk = () => ({
   score: 30,
   description: "",
   location: "",
-  files: [], // сонгосон File объектууд (зөвхөн frontend дээр, серверт шууд явахгүй)
+  files: []
 });
 
 // Зургийн preview: object URL үүсгээд, хэрэггүй болоход чөлөөлнө (memory leak-ээс сэргийлнэ)
@@ -608,22 +609,36 @@ const AddRisk = () => {
 
                     {/* IMAGES */}
                     <div className="sm:col-span-2">
-                      <label className="mb-2 block text-sm font-semibold text-gray-700">
-                        Эрсдэлийн зураг{" "}
-                        <span className="text-xs font-normal text-gray-400">
-                          (нэг зураг дээд тал нь 5MB)
-                        </span>
+                      
+                      <label className="group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/70 px-6 py-8 transition hover:border-red-300 hover:bg-red-50/40">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-red-500 shadow-sm transition group-hover:scale-110">
+                          <Upload size={22} />
+                        </div>
+
+                        <div className="text-center">
+                          <p className="text-sm font-semibold text-gray-700">
+                            Зураг оруулах
+                          </p>
+                          <p className="mt-1 text-xs text-gray-400">
+                            PNG, JPG, WEBP · Олон зураг сонгох боломжтой
+                          </p>
+                          <p className="mt-1 text-xs text-gray-400">
+                            <span className="font-bold text-red-600">*</span> 5MB-аас хэтрэлсэн зураг оруулах боломжгүй
+                            </p>
+                        </div>
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => {
+                            addFiles(risk.id, e.target.files);
+                            e.target.value = "";
+                          }}
+                        />
                       </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => {
-                          addFiles(risk.id, e.target.files);
-                          e.target.value = ""; // ижил файлыг дахин сонгох боломжтой болгоно
-                        }}
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-50"
-                      />
+
 
                       {risk.files.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-3">

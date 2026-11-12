@@ -20,6 +20,8 @@ import {
   Wallet,
   Percent,
   ClipboardList,
+  ShoppingCart,
+  Pen
 } from "lucide-react";
 
 const filters = ["Бүгд", "Өнөөдөр", "7 хоног", "30 хоног"];
@@ -39,6 +41,7 @@ const normalizePriceOffer = (item, index) => {
     (o, i) => {
       const valuation = Number(o.valuation) || 0;
       const feePercentage = Number(o.feePercentage) || 0;
+      const quantity = Number(o.quantity) || 1;
       return {
         id: o._id || `${index}-offer-${i}`,
         name:
@@ -47,6 +50,7 @@ const normalizePriceOffer = (item, index) => {
           o.name ||
           "Нэргүй даатгал",
         valuation,
+        quantity: quantity,
         feePercentage,
         feeAmount: offerFee({ ...o, valuation, feePercentage }),
       };
@@ -64,6 +68,7 @@ const normalizePriceOffer = (item, index) => {
     offers,
     totalValuation: offers.reduce((s, o) => s + o.valuation, 0),
     totalFee: offers.reduce((s, o) => s + o.feeAmount, 0),
+    quantity: offers.reduce((s, o) => s + (o.quantity || 1), 0),
     timestamp: createdAt ? createdAt.getTime() : 0,
     date: createdAt ? createdAt.toISOString().slice(0, 10) : "Огноо бүртгэгдээгүй",
   };
@@ -197,13 +202,21 @@ function PriceOfferDetails({ item, onClose }) {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="grid gap-2 grid-cols-2 text-sm sm:grid-cols-4">
                       <div className="rounded-lg bg-gray-50 p-3">
                         <p className="flex items-center gap-1 text-[11px] text-gray-400">
                           <Wallet size={12} /> Үнэлгээ
                         </p>
                         <p className="mt-1 font-bold text-gray-800">
                           {formatNumber(offer.valuation)} ₮
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-gray-50 p-3">
+                        <p className="flex items-center gap-1 text-[11px] text-gray-400">
+                          <ShoppingCart size={12} /> Тоо хэмжээ
+                        </p>
+                        <p className="mt-1 font-bold text-gray-800">
+                          {offer.quantity}
                         </p>
                       </div>
                       <div className="rounded-lg bg-gray-50 p-3">
@@ -353,9 +366,7 @@ export default function PriceOffers() {
 
   const totalValuation = items.reduce((s, i) => s + i.totalValuation, 0);
   const totalFee = items.reduce((s, i) => s + i.totalFee, 0);
-  const avgPercent = totalValuation
-    ? ((totalFee / totalValuation) * 100).toFixed(2)
-    : "0";
+  const avgPercent = items.reduce((s, i) => s + i.quantity, 0);
   const thisWeekCount = items.filter((i) => Date.now() - i.timestamp <= 7 * DAY).length;
 
   const handleDelete = async (id) => {
@@ -363,7 +374,7 @@ export default function PriceOffers() {
 
     try {
       setDeletingId(id);
-      await axios.delete(`${API_URL}/price-offers/${id}`, authHeaders());
+      await axios.delete(`${API_URL}/priceOffers/${id}`, authHeaders());
       setItems((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       if (err.response?.status === 401) {
@@ -429,10 +440,10 @@ export default function PriceOffers() {
           />
 
           <StatCard
-            title="Дундаж хураамжийн хувь"
-            value={loading ? "..." : `${avgPercent}%`}
+            title="Тоо хэмжээ"
+            value={loading ? "..." : `${avgPercent}`}
             subtitle="Хураамж / үнэлгээ"
-            icon={Percent}
+            icon={ShoppingCart}
             color="orange"
           />
         </section>
@@ -565,6 +576,7 @@ export default function PriceOffers() {
                       <th className="px-5 py-4">Байршил</th>
                       <th className="px-5 py-4">Даатгал</th>
                       <th className="px-5 py-4 text-right">Үнэлгээ</th>
+                      <th className="px-5 py-4 text-right">Тоо хэмжээ</th>
                       <th className="px-5 py-4 text-right">Хураамж</th>
                       <th className="px-5 py-4">Огноо</th>
                       <th className="px-5 py-4 text-center">Дэлгэрэнгүй</th>
@@ -617,6 +629,10 @@ export default function PriceOffers() {
                           {formatNumber(item.totalValuation)} ₮
                         </td>
 
+                        <td className="whitespace-nowrap px-5 py-4 text-right text-sm text-gray-600">
+                          {item.quantity || item.offers.quantity || item.offers.length} даатгал
+                        </td>
+
                         <td className="whitespace-nowrap px-5 py-4 text-right text-sm font-bold text-gray-900">
                           {formatNumber(item.totalFee)} ₮
                         </td>
@@ -646,7 +662,19 @@ export default function PriceOffers() {
                           >
                             <Trash
                               size={20}
-                              className="text-red-600 hover:text-red-800"
+                              className="text-red-600 hover:text-red-800 cursor-pointer"
+                            />
+                          </button>
+                           <button
+                            type="button"
+                            disabled={deletingId === item.id}
+                            // onClick={() => handleDelete(item.id)}
+                            aria-label="Устгах"
+                            className="pr-6 disabled:opacity-40"
+                          >
+                            <Pen
+                              size={20}
+                              className="text-gray-400 hover:text-gray-700 cursor-pointer"
                             />
                           </button>
                         </td>

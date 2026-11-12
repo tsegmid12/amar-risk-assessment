@@ -17,11 +17,6 @@ const insuranceProductSchema = new mongoose.Schema({
     coverage:{
         type: [String],
         required: true,
-    },
-    additionalServices:{
-        type: [String],
-        default: [],
-        required: false,
     }
 })
 

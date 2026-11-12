@@ -22,6 +22,7 @@ const PORT = process.env.PORT
 const MONGO_URI = process.env.MONGO_URI 
 const upload = require('./middleware/imageUpload');
 const RiskImage = require('./models/RiskImage');
+const AdditionalService = require('./models/additionalService');
 
 mongoose.connect(MONGO_URI).then(() => {
     console.log('Connected to MongoDB');
@@ -201,7 +202,27 @@ app.post('/register', async (req, res) => {
 
 app.delete('/riskAssessments/:id', async (req, res) => {
     const id = req.params.id;
-    await RiskAssessment.findByIdAndDelete(id);
+    const imageId = (await RiskAssessment.findById(id)).risks.flatMap(risk => risk.images);
+    const image = await RiskImage.findById(imageId);
+
+        if (image) {
+            if (image.gridFsId) {
+                const bucket = getBucket();
+
+                const file = await bucket
+                    .find({ _id: image.gridFsId })
+                    .next();
+
+                if (file) {
+                    await bucket.delete(image.gridFsId);
+                    console.log(`GridFS file with ID ${image.gridFsId} deleted successfully.`);
+                }
+            }
+
+            await RiskImage.findByIdAndDelete(imageId);
+        }
+
+        if(id) {await RiskAssessment.findByIdAndDelete(id)}
     res.json({ success: true });
 })
 
@@ -367,6 +388,7 @@ app.post('/price-offers', async (req, res) => {
         const priceOffer = await PriceOffer.create(req.body);
         res.json(priceOffer);
           try {
+            await priceOffer.populate('user');
             const dealId = await createPriceOfferDeal(priceOffer);
             priceOffer.bitrixDealId = dealId;
             await priceOffer.save();
@@ -390,7 +412,7 @@ app.get('/all-price-offers', verifyToken, async (req, res) => {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
 
-        const priceOffers = await PriceOffer.find({ user: userId }).populate('priceOffers.insuranceId').sort({ createdAt: -1 });
+        const priceOffers = await PriceOffer.find({ user: userId }).populate('priceOffers.insuranceId');
         res.json(priceOffers);
     }
     catch(error){
@@ -404,6 +426,29 @@ app.get('/priceOffers/:id', async (req, res) => {
         const id = req.params.id;
         const priceOffer = await PriceOffer.findById(id).populate('priceOffers.insuranceId');
         res.json(priceOffer);
+    }
+    catch(error){
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+app.put('/priceOffers/:id', async (req, res) => {
+    try{
+        const id = req.params.id;
+        const updateData = req.body;
+        await PriceOffer.findByIdAndUpdate(id, updateData, { new: true });
+        res.json({ success: true });
+    }
+    catch(error){
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+})
+
+app.delete('/priceOffers/:id', async (req, res) => {
+    try{
+        const id = req.params.id;
+        await PriceOffer.findByIdAndDelete(id);
+        res.json({ success: true });
     }
     catch(error){
         res.status(500).json({ success: false, message: 'Internal server error' });
@@ -441,6 +486,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
         res.status(500).json({ success: false, message: "Зураг хадгалахад алдаа гарлаа" });
     }
 })
+
 app.get('/images/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -468,6 +514,56 @@ app.get('/images/:id', async (req, res) => {
     console.error(e);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
+});
+
+app.delete('/images/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: 'Буруу зураг ID' });
+        }
+        await RiskImage.findByIdAndDelete(id);
+        res.json({ success: true, message: "Зураг амжилттай устгагдлаа" });
+    } catch (error) {
+        console.error("Error deleting image:", error);
+        if (!res.headersSent) {
+            res.status(500).json({ success: false, message: "Error deleting image" });
+        }   
+    }
+});
+
+app.post('/additional-services', async (req, res) => {
+    try {
+        const { name } = req.body;
+        const additionalService = new AdditionalService({ name });
+        await additionalService.save();
+        res.json(additionalService);
+    } catch (error) {
+        console.error("Error creating additional service:", error);
+        res.status(500).json({ success: false, message: "Error creating additional service" });
+    }
+});
+
+app.get('/additional-services', async (req, res) => {
+    try {
+        const services = await AdditionalService.find();
+        res.json(services);
+    }
+    catch (error) {
+        console.error("Error fetching additional services:", error);
+        res.status(500).json({ success: false, message: "Error fetching additional services" });
+    }
+})
+
+app.delete('/additional-services/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await AdditionalService.findByIdAndDelete(id);
+        res.json({ success: true, message: "Additional service deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting additional service:", error);
+        res.status(500).json({ success: false, message: "Error deleting additional service" });
+    }
 });
 
 module.exports = app;

@@ -5,6 +5,7 @@ const PriceOffer = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InsuranceProduct',
     },
+    quantity: Number,
     valuation: Number,
     feePercentage: Number,
     feeAmount: Number,

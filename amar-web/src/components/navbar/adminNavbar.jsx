@@ -17,7 +17,8 @@ import {
   LogOut,
   UserRound,
   Pencil,
-  ClipboardPlus 
+  ClipboardPlus,
+  ListPlus
 } from "lucide-react";
 
 const menuItems = [
@@ -106,6 +107,11 @@ const menuItemsSuperAdmin = [
         name: "Даатгал нэмэх",
         path: "/admin/add-insurance",
         icon: ShieldPlus,
+      },
+      {
+        name: "Нэмэлт үйлчилгээ",
+        path: "/admin/additional-services",
+        icon: ListPlus,
       },
       {
         name: "Даатгал засах",

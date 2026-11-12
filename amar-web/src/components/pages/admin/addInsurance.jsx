@@ -33,7 +33,6 @@ const AddInsurance = () => {
     category: "Эд хөрөнгө",
   });
 
-  const [services, setServices] = useState([""]);
   const [coverages, setCoverages] = useState([""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -79,9 +78,6 @@ const AddInsurance = () => {
       name: form.name.trim(),
       description: form.description.trim(),
       category: form.category,
-      additionalServices: services
-        .map((item) => item.trim())
-        .filter(Boolean),
       coverage: coverages
         .map((item) => item.trim())
         .filter(Boolean),
@@ -110,7 +106,6 @@ const AddInsurance = () => {
       description: "",
       category: "Эд хөрөнгө",
     });
-    setServices([""]);
     setCoverages([""]);
     setError("");
     setSaved(false);
@@ -225,76 +220,6 @@ const AddInsurance = () => {
                     className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
                   />
                 </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ADDITIONAL SERVICES */}
-          <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-                  <Sparkles size={21} />
-                </div>
-                <div>
-                  <h2 className="font-bold text-gray-900">
-                    Нэмэлт үйлчилгээ
-                  </h2>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Даатгалтай хамт санал болгох нэмэлт үйлчилгээнүүд
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 p-5 sm:p-7">
-              {services.map((service, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
-                    <span className="text-sm font-bold">
-                      {index + 1}
-                    </span>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={service}
-                    onChange={(e) =>
-                      {updateList(setServices, services, index, e.target.value);
-                      }
-                    }
-                    placeholder="Жишээ: Галын эрсдэлийн үнэлгээ"
-                    className="min-w-0 flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-50"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      removeItem(setServices, services, index)
-                    }
-                    aria-label="Үйлчилгээ устгах"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-400 transition hover:bg-red-50 hover:text-red-600"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-
-              {services.length === 0 && (
-                <p className="rounded-xl bg-gray-50 px-4 py-5 text-center text-sm text-gray-400">
-                  Нэмэлт үйлчилгээ бүртгээгүй байна.
-                </p>
-              )}
-
-              <div className="mt-6 flex justify-end">
-                <button
-                type="button"
-                onClick={() => addItem(setServices, services)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-                >
-                  <Plus size={17} />
-                  Үйлчилгээ нэмэх
-                </button>
               </div>
             </div>
           </section>
