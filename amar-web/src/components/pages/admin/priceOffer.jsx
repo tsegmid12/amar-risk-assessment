@@ -26,6 +26,7 @@ const initialRisk = () => ({
 const AddRisk = () => {
   const [organization, setOrganization] = useState("");
   const [orgLocation, setOrgLocation] = useState("");
+  const [risks, setRisks] = useState([initialRisk()]);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [insurance, setInsurance] = useState([]);
@@ -151,17 +152,18 @@ const AddRisk = () => {
 
           <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
-              <Wallet size={24} />
+              <Activity size={24} />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Нийт хураамж</p>
+              <p className="text-sm text-gray-500">Дундаж эрсдэлийн оноо</p>
               <p className="mt-1 text-2xl font-bold text-gray-900">
-                {formatNumber(valuation && Object.keys(valuation).length > 0 ? Object.keys(valuation).reduce((total, insuranceId) => {
-                  const val = parseFloat(valuation[insuranceId]) || 0;
-                  const qty = parseFloat(quantity[insuranceId]) || 1;
-                  const rate = parseFloat(insuranceRates[insuranceId]) || 0;
-                  return total + (val * qty * rate / 100);
-                }, 0) : 0)} ₮
+                {Math.round(
+                  risks.reduce((sum, risk) => sum + Number(risk.score), 0) /
+                    Math.max(risks.length, 1)
+                )}
+                <span className="ml-1 text-sm font-medium text-gray-400">
+                  /100
+                </span>
               </p>
             </div>
           </div>
@@ -483,7 +485,7 @@ const AddRisk = () => {
                                 </label>
 
                                 <div className="flex items-center rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm font-medium text-gray-800 mt-2">
-                                  {formatNumber((valuation[item._id] * (quantity[item._id] || 1)) / 100 * insuranceRates[item._id]) || 0} ₮
+                                  {formatNumber((valuation[item._id] * quantity[item._id]) / 100 * insuranceRates[item._id]) || 0} ₮
                                 </div>
                               </div>
 

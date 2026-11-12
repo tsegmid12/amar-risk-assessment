@@ -235,7 +235,7 @@ function ImageLightbox({ urls, startIndex = 0, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-4"
+      className="fixed inset-0 z-60 flex items-center justify-center bg-black/85 p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
