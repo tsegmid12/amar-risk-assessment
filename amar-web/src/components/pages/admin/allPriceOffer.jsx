@@ -699,6 +699,10 @@ export default function PriceOffers() {
                       <div className="min-w-0 flex-1">
                         <h3 className="wrap-break-word font-semibold text-gray-900">
                           {item.name}
+                           <a href={`https://amardaatgal.vercel.app/${item._id}`} target="_blank" rel="noopener noreferrer" className="mt-0.5 flex items-center gap-1 text-xs text-blue-400 hover:text-red-600">
+                                <FileText size={12} />
+                                Үнийн саналын холбоос
+                              </a>
                         </h3>
                         {item.email && (
                           <p className="mt-1 break-all text-xs text-gray-400">
@@ -747,7 +751,7 @@ export default function PriceOffers() {
                         onClick={() => setSelectedItem(item)}
                         className="flex shrink-0 items-center gap-1 text-sm font-semibold text-red-600"
                       >
-                        Дэлгэрэнгүйasdg
+                        Дэлгэрэнгүй
                         <ChevronRight size={16} />
                       </button>
                     </div>
