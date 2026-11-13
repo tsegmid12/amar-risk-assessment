@@ -7,6 +7,7 @@ import page from "../../assets/page.png";
 import flame from "../../assets/flame.png";
 import shield from "../../assets/shield.png";
 import logo from "../../assets/logo.svg";
+import tamga from "../../assets/amar-tamga.png";
 
 import {
   BarChart,
@@ -90,207 +91,196 @@ const CategoryIcon = ({ category, className = "" }) => {
   return <ShieldCheck className={className} />;
 };
 
-/* =========================================================
-   INVOICE MODAL
-   Portal-оор document.body-д гаргана. Ингэснээр хэвлэх үед
-   бусад бүх контентыг (#root) display:none болгож, зөвхөн
-   нэхэмжлэл 1 хуудсан дээр гарна.
-========================================================= */
-function Invoice({ items = [], organizationName, onClose }) {
-  const totalAmount = items.reduce(
-    (sum, item) => sum + (Number(item.feeAmount) || 0),
-    0
-  );
+const fmt = (n) => Number(n || 0).toLocaleString("en-US");
 
-  const handlePrint = () => {
-    window.print();
-  };
+const seller = {
+  name: "АМАР ДААТГАЛ ХХК",
+  rd: "2804808",
+  address: "СБД, 1-р хороо, Энхтайваны өргөн чөлөө 17, Блю Скай цамхаг, 20-р давхар",
+  phone: "18002111",
+};
+const bank = { name: "Хаан банк", currency: "MNT", account: "MN570005005070895140" };
+const accountant = "Ц.Сэлэнгэ";
+
+const styles = {
+  page: { background: "#fff", color: "#000", padding: "20mm 22mm", boxSizing: "border-box",
+  fontFamily: "'Liberation Serif','Times New Roman',serif", fontSize: 15 },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
+  logoWrap: { display: "flex", alignItems: "flex-start", gap: 12 },
+  logo: { color: "#e4171d", fontWeight: 900, fontSize: 56, letterSpacing: -2, lineHeight: 1, fontFamily: "Arial Black, Arial, sans-serif" },
+  logoSub: { color: "#e4171d", fontWeight: 700, fontSize: 12, letterSpacing: 12, marginTop: 4, fontFamily: "Arial, sans-serif" },
+  title: { fontSize: 34, margin: 0, fontWeight: 400, textAlign: "right" },
+  meta: { textAlign: "right", marginTop: 10, lineHeight: 1.5, fontsize: 18 },
+  parties: { display: "grid", gridTemplateColumns: "1fr auto 1fr", columnGap: 16, marginTop: 36 },
+  line: { margin: "0 0 18px", lineHeight: 1.4, fontSize: 18 },
+  bank: { display: "grid", gridTemplateColumns: "140px 1fr", rowGap: 6, marginTop: 30, fontSize: 18 },
+  table: { width: "100%", boxSizing: "border-box", borderCollapse: "collapse", marginTop: 36 },
+  th: { background: "gray", color: "white", fontsize: 18, fontWeight: 400, padding: "14px 10px", textAlign: "left", border: "1px solid #000" },
+  td: { padding: "14px 10px", border: "1px solid #000", verticalAlign: "middle", fontSize: 18 },
+  totals: { marginLeft: "auto", width: "50%", borderCollapse: "collapse" },
+  totalLabel: { textAlign: "right", padding: "6px 12px", border: "1px solid #000" },
+  totalValue: { textAlign: "right", padding: "6px 12px", border: "1px solid #000", width: "45%" },
+  footer: { display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 16, marginTop: 80, fontSize: 18 },
+  stamp: { border: "2px solid #d9455a", borderRadius: 22, color: "#d9455a", padding: "8px 18px",
+    textAlign: "center", fontSize: 10, lineHeight: 1.3, transform: "rotate(-2deg)", opacity: 0.85 },
+};
+
+function Invoice({ items = [], organizationName, invoiceNumber = "", onClose }) {
+  const [rd, setRd] = useState("");
+  const [phone, setPhone] = useState("");
+
+  // feeAmount-оос мөр бүрийг нэхэмжлэхийн мөр болгон хөрвүүлнэ
+  const rows = items.map((item) => ({
+    description: item.insuranceId?.name,
+    qty: Number(item.qty ?? item.quantity ?? 1),
+    unitPrice: Number(item.unitPrice ?? item.feeAmount) || 0,
+  }));
+  const total = rows.reduce((sum, r) => sum + r.qty * r.unitPrice, 0);
+
+  const buyer = { name: organizationName.organization, rd, address: organizationName.address, phone, dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("en-GB") }; // төлөх хугацаа нь өнөөдрөөс 7 хоногийн дараа
+  const issuedDate = new Date().toLocaleDateString("en-GB"); // 13/11/2026
 
   return createPortal(
     <div id="invoice-print-root">
       <style>{`
         @media print {
-          body > *:not(#invoice-print-root) {
-            display: none !important;
+          #invoice-print, #invoice-print * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
-          html, body {
-            height: auto !important;
-            overflow: visible !important;
-            background: #fff !important;
-          }
+          body > *:not(#invoice-print-root) { display: none !important; }
+          html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
           #invoice-print-root > div {
-            position: static !important;
-            display: block !important;
-            inset: auto !important;
-            padding: 0 !important;
-            background: #fff !important;
+            position: static !important; display: block !important;
+            inset: auto !important; padding: 0 !important; background: #fff !important;
           }
+            
           #invoice-print {
-            position: static !important;
+            position: static !important; width: 100% !important; max-width: none !important;
+            max-height: none !important; overflow: visible !important;
+            border: none !important; box-shadow: none !important; border-radius: 0 !important;
+          }
+          #invoice-scroll { overflow: visible !important; }
+          .invoice-page {
+            padding: 0 2mm 0 0 !important;
+            box-sizing: border-box !important;
             width: 100% !important;
-            max-width: none !important;
-            max-height: none !important;
-            overflow: visible !important;
-            border: none !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
           }
-          .invoice-no-print {
-            display: none !important;
-          }
-          @page {
-            size: A4;
-            margin: 10mm;
-          }
+          .invoice-no-print { display: none !important; }
+          @page { size: A4; margin: 10mm; }
         }
       `}</style>
 
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-5"
-        onMouseDown={(event) => {
-          if (event.target === event.currentTarget) onClose();
-        }}
+        onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         <section
           id="invoice-print"
-          className="flex max-h-[96vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+          className="flex max-h-[96vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         >
-          {/* MODAL CONTROLS (PRINT ҮЕД ХАРАГДАХГҮЙ) */}
-          <div className="invoice-no-print flex  items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
+          {/* Хяналтын хэсэг (хэвлэхэд харагдахгүй) */}
+          <div className="invoice-no-print flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/50 px-6 py-4">
             <div className="flex items-center gap-2 font-bold text-slate-800">
               <FileCheck2 size={18} className="text-red-500" />
-              <span>Төлбөрийн Нэхэмжлэх Харах</span>
+              <span>Төлбөрийн нэхэмжлэх харах</span>
             </div>
 
-            <div>
-              <input className="border" placeholder="Регистр" />
-              <input className="border" placeholder="Утасны дугаар" />
+            
+
+            <div className="flex gap-2">
+              <input className="rounded-lg border px-3 py-1.5 text-sm" placeholder="Регистр"
+                value={rd} onChange={(e) => setRd(e.target.value)} />
+              <input className="rounded-lg border px-3 py-1.5 text-sm" placeholder="Утасны дугаар"
+                value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
+
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 shadow-sm"
-              >
-                <Printer size={16} />
-                Хэвлэх
+              <button type="button" onClick={() => window.print()}
+                className="flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600">
+                <Printer size={16} /> Хэвлэх
               </button>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Хаах"
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700"
-              >
+              <button type="button" onClick={onClose} aria-label="Хаах"
+                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700">
                 <X size={20} />
               </button>
             </div>
           </div>
 
-          {/* PRINTABLE INVOICE CONTENT */}
-          <div className="overflow-y-auto p-6 sm:p-10 font-sans text-slate-800">
-            {/* INVOICE HEADER */}
-            <div className="flex justify-between items-start border-b-2 border-red-500 pb-6">
-              <div>
-                <div className="flex items-center gap-1.5 text-red-600 font-black text-2xl tracking-wider">
-                  <img src={logo} alt="Logo" className="h-14 w-auto" />
+          {/* Нэхэмжлэх (дотроо scroll хийнэ) */}
+          <div id="invoice-scroll" className="overflow-y-auto">
+            <div className="invoice-page" style={styles.page}>
+              <div style={styles.header}>
+                <div style={styles.logoWrap}>
+                  <div>
+                    <img src={logo} alt="AMAR" style={{ height: 55 }} />
+                  </div>
                 </div>
-                <div className="mt-3 text-xs leading-relaxed text-slate-600">
-                  <p><strong className="text-slate-800">Нэр:</strong> АМАР ДААТГАЛ ХХК</p>
-                  <p><strong className="text-slate-800">РД:</strong> 2804808</p>
-                  <p><strong className="text-slate-800">Хаяг:</strong> СБД, 1-р хороо, Энхтайваны өргөн чөлөө 17, Блю Скай цамхаг, 20-р давхар</p>
-                  <p><strong className="text-slate-800">Утас:</strong> 18002111</p>
+                <div>
+                  <h1 style={styles.title}>Нэхэмжлэх</h1>
+                  <div style={styles.meta}>
+                    <div>№ <strong>{invoiceNumber}</strong></div>
+                    <div>Нэхэмжилсэн огноо: {issuedDate}</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="text-right">
-                <h1 className="text-3xl font-semibold">Нэхэмжлэх</h1>
-                <p className="mt-1 text-sm font-bold">№ 291</p>
-                <p className="mt-1 text-sm text-slate-500">Нэхэмжилсэн огноо {new Date().toLocaleDateString()}</p>
-                <div className="mt-3 text-xs leading-relaxed text-slate-600">
-                  <p><strong className="text-slate-800">То Нэр:</strong> {organizationName}</p>
-                  <p><strong className="text-slate-800">РД:</strong> 5812968</p>
-                  <p><strong className="text-slate-800">Утасны дугаар:</strong> +976 9903 8010</p>
-                  <p><strong className="text-slate-800">Төлбөр төлөх хугацаа:</strong>{new Date().toLocaleDateString()}</p>
+              <div style={styles.parties}>
+                <div>
+                  <p style={styles.line}>Нэр: {seller.name}</p>
+                  <p style={styles.line}>РД: {seller.rd}</p>
+                  <p style={styles.line}>Хаяг: {seller.address}</p>
+                  <p style={styles.line}>Утас: {seller.phone}</p>
+                </div>
+                <div>To</div>
+                <div>
+                  <p style={styles.line}>Нэр: {buyer.name}</p>
+                  <p style={styles.line}>РД: {buyer.rd}</p>
+                  <p style={styles.line}>Хаяг: {buyer.address}</p>
+                  <p style={styles.line}>Утасны дугаар: {buyer.phone}</p>
+                  <p style={styles.line}>Төлбөр төлөх хугацаа: {buyer.dueDate}</p>
                 </div>
               </div>
-            </div>
 
-            {/* BANK DETAILS */}
-            <div className="my-6 rounded-xl bg-slate-50 p-4 border border-slate-200/80 text-xs grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-slate-500">Банкны нэр:</p>
-                <p className="font-bold text-slate-800 text-sm">Хаан банк</p>
+              <div style={styles.bank}>
+                <div>Банкны нэр:</div>
+                <div>{bank.name}</div>
+                <div>Банкны дансны дугаар:</div>
+                <div>{bank.currency}<br />{bank.account}</div>
               </div>
-              <div>
-                <p className="text-slate-500">Банкны дансны дугаар (MNT):</p>
-                <p className="font-mono font-bold text-slate-900 text-sm tracking-wide">MN570005005070895140</p>
-              </div>
-            </div>
 
-            {/* ITEMS TABLE */}
-            <div className="mt-6 overflow-hidden rounded-lg border border-slate-200">
-              <table className="w-full border-collapse text-xs text-left">
+              <table style={styles.table}>
                 <thead>
-                  <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                    <th className="p-3">Гүйлгээний утга</th>
-                    <th className="p-3 text-center">Тоо хэмжээ</th>
-                    <th className="p-3 text-right">Төрөл (Нэгж үнэ)</th>
-                    <th className="p-3 text-right">Нийт үнэ</th>
+                  <tr>
+                    <th style={{ ...styles.th, width: "42%" }}>Гүйлгээний утга</th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>Тоо хэмжээ</th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>Төрөл</th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>Нийт үнэ</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {items.length > 0 ? (
-                    items.map((item, index) => (
-                      <tr key={item._id || index} className="hover:bg-slate-50/50">
-                        <td className="p-3 font-medium text-slate-800">
-                          {item.insuranceId?.name || "ГЭНЭТИЙН ОСЛЫН ДААТГАЛ (88C2600962)"}
-                        </td>
-                        <td className="p-3 text-center">{item.quantity || 1}</td>
-                        <td className="p-3 text-right text-slate-600">
-                          {formatMoney(item.valuation || 100000)}
-                        </td>
-                        <td className="p-3 text-right font-bold text-slate-900">
-                          {formatMoney(item.feeAmount || 400000)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td className="p-3 font-medium text-slate-800">ГЭНЭТИЙН ОСЛЫН ДААТГАЛ (88C2600962)</td>
-                      <td className="p-3 text-center">4</td>
-                      <td className="p-3 text-right text-slate-600">100,000 ₮</td>
-                      <td className="p-3 text-right font-bold text-slate-900">400,000 ₮</td>
+                <tbody>
+                  {rows.map((r, i) => (
+                    <tr key={i} style={{ height: 80 }}>
+                      <td style={styles.td}>{r.description}</td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>{r.qty}</td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>{fmt(r.unitPrice)}</td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>{fmt(r.qty * r.unitPrice)}</td>
                     </tr>
-                  )}
+                  ))}
                 </tbody>
               </table>
-            </div>
 
-            {/* TOTAL SECTION */}
-            <div className="mt-4 flex justify-end">
-              <div className="w-full max-w-xs space-y-2 border-t-2 border-slate-800 pt-3 text-sm">
-                <div className="flex justify-between font-semibold text-slate-700">
-                  <span>Дүн:</span>
-                  <span>{formatMoney(totalAmount || 400000)}</span>
-                </div>
-                <div className="flex justify-between font-black text-base text-red-600 border-t border-slate-200 pt-2">
-                  <span>Нийт:</span>
-                  <span>{formatMoney(totalAmount || 400000)}</span>
-                </div>
-              </div>
-            </div>
+              <table style={styles.totals}>
+                <tbody>
+                  <tr><td style={styles.totalLabel}>Дүн</td><td style={styles.totalValue}>{fmt(total)} ₮</td></tr>
+                  <tr><td style={styles.totalLabel}>Нийт</td><td style={styles.totalValue}>{fmt(total)} ₮</td></tr>
+                </tbody>
+              </table>
 
-            {/* FOOTER / SIGNATURE */}
-            <div className="mt-16 flex justify-between items-end border-t border-dashed border-slate-300 pt-6 text-xs text-slate-600">
-              <div>
-                <p className="font-bold text-slate-800">АМАР ДААТГАЛ ХХК</p>
-                <p className="mt-1 text-slate-400">Системээс автомат үүсгэсэн баримт.</p>
-              </div>
-              <div className="text-right">
-                <p><span className="font-semibold text-slate-700">Санхүү нягтлан бодогч:</span> Ц.Сэлэнгэ</p>
-                <div className="mt-2 h-10 border-b border-slate-400 w-48 ml-auto flex items-end justify-center text-[10px] text-slate-400 italic">
-                  (Тамга / Тэмдэг)
-                </div>
+              <div style={styles.footer}>
+                <span>Санхүү нягтлан бодогч:</span>
+                <img src={tamga} alt="Тамга" style={{ height: 65 }} />
+                <span>{accountant}</span>
               </div>
             </div>
           </div>
@@ -300,6 +290,7 @@ function Invoice({ items = [], organizationName, onClose }) {
     document.body
   );
 }
+
 
 /* =========================================================
    SMALL SHARED COMPONENTS
@@ -1273,7 +1264,7 @@ export default function Home() {
       {invoice && (
         <Invoice
           items={priceOfferItems}
-          organizationName={priceOfferOrganization}
+          organizationName={priceOffer}
           onClose={() => setInvoice(false)}
         />
       )}
