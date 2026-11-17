@@ -31,7 +31,7 @@ async function createPriceOfferDeal(ra) {
       TITLE: '',
       CATEGORY_ID: Number(process.env.BITRIX_SALES_BEFORE_CATEGORY_ID),
       STAGE_ID: process.env.BITRIX_EMAIL_SENT_STAGE_ID,
-      COMMENTS: `Вебээс үнийн санал илгээгдсэн (Байгууллага: ${ra.bitrixDealId})`,
+      COMMENTS: `Вебээс үнийн санал илгээгдсэн (Байгууллага: ${ra.organization})`,
       ASSIGNED_BY_ID: ra.user.bitrixId,
     }
   })

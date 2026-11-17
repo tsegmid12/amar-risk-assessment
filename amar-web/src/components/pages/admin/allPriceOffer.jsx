@@ -580,6 +580,7 @@ export default function PriceOffers() {
                       <th className="px-5 py-4 text-right">Хураамж</th>
                       <th className="px-5 py-4">Огноо</th>
                       <th className="px-5 py-4 text-center">Дэлгэрэнгүй</th>
+                      <th className="px-5 py-4 text-center">Үйлдэл</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -652,7 +653,22 @@ export default function PriceOffers() {
                           </button>
                         </td>
 
-                        <td>
+                        <td className="">
+                           <button
+                            type="button"
+                            onClick={() => {
+                              // Navigate to the edit page for this item
+                              window.location.href = `/admin/edit-price-offer/${item.id}`;
+                            }}
+                            aria-label="Устгах"
+                            className="pr-6 disabled:opacity-40"
+                          >
+                            <Pen
+                              size={20}
+                              className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                            />
+                          </button>
+
                           <button
                             type="button"
                             disabled={deletingId === item.id}
@@ -665,18 +681,7 @@ export default function PriceOffers() {
                               className="text-red-600 hover:text-red-800 cursor-pointer"
                             />
                           </button>
-                           <button
-                            type="button"
-                            disabled={deletingId === item.id}
-                            // onClick={() => handleDelete(item.id)}
-                            aria-label="Устгах"
-                            className="pr-6 disabled:opacity-40"
-                          >
-                            <Pen
-                              size={20}
-                              className="text-gray-400 hover:text-gray-700 cursor-pointer"
-                            />
-                          </button>
+                          
                         </td>
                       </tr>
                     ))}
@@ -714,6 +719,20 @@ export default function PriceOffers() {
                         </p>
                       </div>
 
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Navigate to the edit page for this item
+                          window.location.href = `/admin/edit-price-offer/${item.id}`;
+                        }}
+                        aria-label="Устгах"
+                        className="pr-6 disabled:opacity-40"
+                      >
+                        <Pen
+                          size={20}
+                          className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                        />
+                      </button>
                       <button
                         type="button"
                         disabled={deletingId === item.id}

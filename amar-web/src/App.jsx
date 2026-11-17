@@ -37,6 +37,7 @@ import ResetPassword from "./components/pages/admin/resetPassword";
 import PriceOffer from "./components/pages/admin/priceOffer";
 import AllPriceOffer from "./components/pages/admin/allPriceOffer";  
 import AdditionalService from "./components/pages/admin/additionalService"; 
+import EditPriceOffer from "./components/pages/admin/editPriceOffer";
 
 const ScrollToTop = () => {
  const { pathname } = useLocation();
@@ -177,6 +178,8 @@ function AppContent() {
           />
 
           <Route path="price-offers" element={<PriceOffer />}/>
+
+          <Route path="edit-price-offer/:id" element={<EditPriceOffer />}/>
 
           <Route path="all-price-offers" element={<AllPriceOffer />}/>
 

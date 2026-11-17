@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { NotepadText, WalletCards } from "lucide-react";
 
 import page from "../../assets/page.png";
 import flame from "../../assets/flame.png";
@@ -180,32 +181,92 @@ function Invoice({ items = [], organizationName, invoiceNumber = "", onClose }) 
           className="flex max-h-[96vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         >
           {/* Хяналтын хэсэг (хэвлэхэд харагдахгүй) */}
-          <div className="invoice-no-print flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/50 px-6 py-4">
-            <div className="flex items-center gap-2 font-bold text-slate-800">
-              <FileCheck2 size={18} className="text-red-500" />
-              <span>Төлбөрийн нэхэмжлэх харах</span>
-            </div>
+          <div className="invoice-no-print border-b border-slate-100 bg-slate-50 px-5 py-5 sm:px-6">
+            <div className="flex flex-col gap-4">
 
-            
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50">
+                    <FileCheck2 size={22} className="text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800">
+                      Төлбөрийн нэхэмжлэх
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Нэхэмжлэхээ хэвлэхийн тулд мэдээллээ оруулна уу
+                    </p>
+                  </div>
+                </div>
 
-            <div className="flex gap-2">
-              <input className="rounded-lg border px-3 py-1.5 text-sm" placeholder="Регистр"
-                value={rd} onChange={(e) => setRd(e.target.value)} />
-              <input className="rounded-lg border px-3 py-1.5 text-sm" placeholder="Утасны дугаар"
-                value={phone} onChange={(e) => setPhone(e.target.value)} />
-            </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Хаах"
+                  className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => window.print()}
-                className="flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600">
-                <Printer size={16} /> Хэвлэх
-              </button>
-              <button type="button" onClick={onClose} aria-label="Хаах"
-                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-200 hover:text-slate-700">
-                <X size={20} />
-              </button>
+              {/* Input section */}
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-green-600" />
+                  <span className="text-sm font-semibold text-slate-700">
+                    Хэрэглэгчийн мэдээлэл
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                      Регистрийн дугаар
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Регистрийн дугаар"
+                      value={rd}
+                      onChange={(e) => setRd(e.target.value)}
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                      Утасны дугаар
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Утасны дугаар"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-red-400 focus:bg-white focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Print button */}
+              <div className="flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+                <p className="text-xs text-slate-500">
+                  <span className="text-red-500">*</span> Бүх мэдээллийг бөглөсний дараа хэвлэх боломжтой.
+                </p>
+
+                <button
+                  type="button"
+                  disabled={!rd.trim() || !phone.trim()}
+                  onClick={() => window.print()}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  <Printer size={17} />
+                  Нэхэмжлэх хэвлэх
+                </button>
+              </div>
             </div>
           </div>
+
 
           {/* Нэхэмжлэх (дотроо scroll хийнэ) */}
           <div id="invoice-scroll" className="overflow-y-auto">
@@ -279,7 +340,7 @@ function Invoice({ items = [], organizationName, invoiceNumber = "", onClose }) 
 
               <div style={styles.footer}>
                 <span>Санхүү нягтлан бодогч:</span>
-                <img src={tamga} alt="Тамга" style={{ height: 65 }} />
+                <img src={tamga} alt="Тамга" style={{ height: 75 }} />
                 <span>{accountant}</span>
               </div>
             </div>
@@ -1055,6 +1116,9 @@ export default function Home() {
 
               <div className="grid grid-cols-2 gap-3 sm:w-120">
                 <div className="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20 backdrop-blur-sm">
+                <div className="flex items-center gap-2 p-2 w-10 h-10 rounded-xl mb-2 bg-gray-100">
+                  <NotepadText className="text-red-400"/>
+                </div>
                   <p className="text-xs font-medium text-red-100">
                     Нийт бүтээгдэхүүн
                   </p>
@@ -1063,8 +1127,11 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-white p-4 text-red-600">
-                  <p className="text-xs font-medium text-red-400">
+                 <div className="rounded-2xl bg-white/15 p-4 ring-1 ring-white/20 backdrop-blur-sm">
+                  <div className="flex items-center gap-2 p-2 w-10 h-10 rounded-xl mb-2 bg-gray-100">
+                    <WalletCards className="text-red-400"/>
+                  </div>
+                  <p className="text-xs font-medium text-red-100">
                     Нийт хураамж
                   </p>
                   <p className="mt-2 text-2xl font-bold sm:text-3xl">
@@ -1142,7 +1209,7 @@ export default function Home() {
                     </div>
 
                     {insurance.description && (
-                      <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-500 ">
+                      <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-500 line-clamp-2 sm:text-[15px]">
                         {insurance.description}
                       </p>
                     )}
@@ -1164,7 +1231,7 @@ export default function Home() {
                             <Wallet size={13} />
                             Үнэлгээ
                           </p>
-                          <p className="mt-2 text-sm font-bold text-emerald-600 sm:text-lg">
+                          <p className="mt-2 text-sm font-bold text-slate-800 sm:text-lg">
                             {formatMoney(item.valuation)}
                           </p>
                         </div>
@@ -1174,7 +1241,7 @@ export default function Home() {
                             <ShoppingCart size={13} />
                             Тоо хэмжээ
                           </p>
-                          <p className="mt-2 text-sm font-bold text-emerald-600 sm:text-lg">
+                          <p className="mt-2 text-sm font-bold text-slate-800 sm:text-lg">
                             {item.quantity || 1}
                           </p>
                         </div>
@@ -1192,11 +1259,11 @@ export default function Home() {
                           </p>
                         </div>
 
-                        <div className="bg-red-50 p-3.5 sm:p-4">
-                          <p className="text-[11px] font-medium text-red-500 sm:text-xs">
+                        <div className="bg-green-50 p-3.5 sm:p-4">
+                          <p className="text-[11px] font-medium text-green-500 sm:text-xs">
                             Хураамж
                           </p>
-                          <p className="mt-2 text-sm font-bold text-red-600 sm:text-lg">
+                          <p className="mt-2 text-sm font-bold text-green-600 sm:text-lg">
                             {formatMoney(item.feeAmount)}
                           </p>
                         </div>
