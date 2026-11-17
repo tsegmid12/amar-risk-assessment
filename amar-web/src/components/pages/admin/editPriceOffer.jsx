@@ -35,9 +35,17 @@ const AddRisk = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
-  const user = jwtDecode(token);
-  const userid = user?.id
+  let userid = null;
 
+  try {
+    if(token) {
+        const user = jwtDecode(token);
+        userid = user?.id
+    }
+  }
+  catch(error){
+    console.error("Error decoding token:", error);
+  }
   const { id } = useParams();
   
   useEffect(() => {
@@ -87,7 +95,7 @@ const AddRisk = () => {
 
     fetchPriceOffer();
 
-  }, []);
+  }, [id]);
 
   const filteredInsurance = insurance.filter((item) => {
     const query = search.toLowerCase();
