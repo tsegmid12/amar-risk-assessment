@@ -656,10 +656,7 @@ export default function PriceOffers() {
                         <td>
                            <button
                             type="button"
-                            onClick={() => {
-                              // Navigate to the edit page for this item
-                              window.location.href = `/admin/edit-price-offer/${item.id}`;
-                            }}
+                            onClick={() => {navigate(`/admin/edit-price-offer/${item.id}`)}}
                             aria-label="Устгах"
                             className="pr-6 disabled:opacity-40"
                           >
@@ -721,10 +718,7 @@ export default function PriceOffers() {
 
                       <button
                         type="button"
-                        onClick={() => {
-                          // Navigate to the edit page for this item
-                          window.location.href = `/admin/edit-price-offer/${item.id}`;
-                        }}
+                        onClick={() => {navigate(`/admin/edit-price-offer/${item.id}`)}}
                         aria-label="Устгах"
                         className="pr-6 disabled:opacity-40"
                       >
