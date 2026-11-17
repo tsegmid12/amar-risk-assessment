@@ -111,17 +111,17 @@ const styles = {
   logo: { color: "#e4171d", fontWeight: 900, fontSize: 56, letterSpacing: -2, lineHeight: 1, fontFamily: "Arial Black, Arial, sans-serif" },
   logoSub: { color: "#e4171d", fontWeight: 700, fontSize: 12, letterSpacing: 12, marginTop: 4, fontFamily: "Arial, sans-serif" },
   title: { fontSize: 34, margin: 0, fontWeight: 400, textAlign: "right" },
-  meta: { textAlign: "right", marginTop: 10, lineHeight: 1.5, fontsize: 18 },
+  meta: { textAlign: "right", marginTop: 10, lineHeight: 1.5,  },
   parties: { display: "grid", gridTemplateColumns: "1fr auto 1fr", columnGap: 16, marginTop: 36 },
-  line: { margin: "0 0 18px", lineHeight: 1.4, fontSize: 18 },
-  bank: { display: "grid", gridTemplateColumns: "140px 1fr", rowGap: 6, marginTop: 30, fontSize: 18 },
+  line: { margin: "0 0 18px", lineHeight: 1.4,  },
+  bank: { display: "grid", gridTemplateColumns: "140px 1fr", rowGap: 6, marginTop: 30, },
   table: { width: "100%", boxSizing: "border-box", borderCollapse: "collapse", marginTop: 36 },
-  th: { background: "gray", color: "white", fontsize: 18, fontWeight: 400, padding: "14px 10px", textAlign: "left", border: "1px solid #000" },
-  td: { padding: "14px 10px", border: "1px solid #000", verticalAlign: "middle", fontSize: 18 },
+  th: { background: "gray", color: "white", fontWeight: 400, padding: "14px 10px", textAlign: "left", border: "1px solid #000" },
+  td: { padding: "14px 10px", border: "1px solid #000", verticalAlign: "middle", },
   totals: { marginLeft: "auto", width: "50%", borderCollapse: "collapse" },
   totalLabel: { textAlign: "right", padding: "6px 12px", border: "1px solid #000" },
   totalValue: { textAlign: "right", padding: "6px 12px", border: "1px solid #000", width: "45%" },
-  footer: { display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 16, marginTop: 80, fontSize: 18 },
+  footer: { display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 16, marginTop: 80,  },
   stamp: { border: "2px solid #d9455a", borderRadius: 22, color: "#d9455a", padding: "8px 18px",
     textAlign: "center", fontSize: 10, lineHeight: 1.3, transform: "rotate(-2deg)", opacity: 0.85 },
 };
@@ -288,34 +288,32 @@ function Invoice({ items = [], organizationName, invoiceNumber = "", onClose }) 
 
               <div style={styles.parties}>
                 <div>
-                  <p style={styles.line}>Нэр: {seller.name}</p>
+                  <p style={styles.line}>Нэхэмжлэгч:</p>
+                  <p style={styles.line}>Байгууллагын нэр: {seller.name}</p>
                   <p style={styles.line}>РД: {seller.rd}</p>
                   <p style={styles.line}>Хаяг: {seller.address}</p>
                   <p style={styles.line}>Утас: {seller.phone}</p>
+                  <p style={styles.line}>Банкны нэр: {bank.name}</p>
+                  <p style={styles.line}>Банкны дансны дугаар: {bank.currency} {bank.account}</p>
                 </div>
-                <div>To</div>
+                <div></div>
                 <div>
-                  <p style={styles.line}>Нэр: {buyer.name}</p>
+                  <p style={styles.line}>Төлөгч:</p>
+                  <p style={styles.line}>Байгууллагын нэр: {buyer.name}</p>
                   <p style={styles.line}>РД: {buyer.rd}</p>
                   <p style={styles.line}>Хаяг: {buyer.address}</p>
                   <p style={styles.line}>Утасны дугаар: {buyer.phone}</p>
-                  <p style={styles.line}>Төлбөр төлөх хугацаа: {buyer.dueDate}</p>
+                  <p style={styles.line}>Төлбөр төлөх хугацаа: {buyer.dueDate}</p> 
                 </div>
               </div>
 
-              <div style={styles.bank}>
-                <div>Банкны нэр:</div>
-                <div>{bank.name}</div>
-                <div>Банкны дансны дугаар:</div>
-                <div>{bank.currency}<br />{bank.account}</div>
-              </div>
 
               <table style={styles.table}>
                 <thead>
                   <tr>
                     <th style={{ ...styles.th, width: "42%" }}>Гүйлгээний утга</th>
                     <th style={{ ...styles.th, textAlign: "center" }}>Тоо хэмжээ</th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>Төрөл</th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>Нэгжийн үнэ</th>
                     <th style={{ ...styles.th, textAlign: "center" }}>Нийт үнэ</th>
                   </tr>
                 </thead>

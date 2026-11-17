@@ -95,7 +95,7 @@ const AddRisk = () => {
 
     fetchPriceOffer();
 
-  }, [id]);
+  }, []);
 
   const filteredInsurance = insurance.filter((item) => {
     const query = search.toLowerCase();
@@ -163,11 +163,11 @@ const AddRisk = () => {
             </div>
 
             <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-              Даатгалын үнийн санал нэмэх
+              Даатгалын үнийн санал засах
             </h1>
 
             <p className="mt-2 text-sm text-gray-500">
-              Байгууллагад тохирох даатгалын үнийн санал нэмэх хэсэг. Та байгууллагын нэр, байршил болон даатгалын бүтээгдэхүүнүүдийг сонгож, эрсдэлийн үнэлгээг оруулна уу.
+              Байгууллагад тохирох даатгалын үнийн санал засах хэсэг. Та байгууллагын нэр, байршил болон даатгалын бүтээгдэхүүнүүдийг сонгож, эрсдэлийн үнэлгээг оруулна уу.
             </p>
           </div>
         </div>
