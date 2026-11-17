@@ -25,7 +25,6 @@ const AddRisk = () => {
   const [valuation, setValuation] = useState({});
   const [insuranceRates, setInsuranceRates] = useState({});
   const [quantity, setQuantity] = useState({});
-  const [priceOffers, setPriceOffers] = useState([]);
 
 
   const formatNumber = (v) => {
@@ -56,7 +55,6 @@ const AddRisk = () => {
   try {
     const response = await axios.get(`${API_URL}/priceOffers/${id}`);
     const offer = response.data;
-    setPriceOffers(offer);
     setOrganization(offer.organization || "");
     setOrgLocation(offer.address || "");
     setOrgEmail(offer.email || "");

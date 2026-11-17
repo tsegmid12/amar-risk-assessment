@@ -653,7 +653,7 @@ export default function PriceOffers() {
                           </button>
                         </td>
 
-                        <td className="">
+                        <td>
                            <button
                             type="button"
                             onClick={() => {
