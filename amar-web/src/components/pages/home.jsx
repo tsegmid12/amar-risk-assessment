@@ -64,7 +64,11 @@ const getRiskLevel = (score) =>
   RISK_LEVELS.find((level) => Number(score) <= level.max) || RISK_LEVELS[0];
 
 const formatMoney = (value) =>
-  `${(Number(value) || 0).toLocaleString("mn-MN")} ₮`;
+{
+  const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "MNT", currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(value);
+
+  return formatted.replace("₮", "").trim() + " ₮"; // "₮ 1,000" -> "1,000 ₮"
+}
 
 // string, массив, эсвэл мөр таслалттай текстийг цэвэр мөрүүдийн жагсаалт болгоно
 const toLines = (value) => {

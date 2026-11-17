@@ -27,8 +27,8 @@ const AddRisk = () => {
   const [quantity, setQuantity] = useState({});
 
   const formatNumber = (v) => {
-    const digits = String(v).replace(/\D/g, ""); 
-    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const formatted = new Intl.NumberFormat("en-US", { style: "decimal", minimumFractionDigits: 0 }).format(v);
+    return formatted;
   };
 
 
