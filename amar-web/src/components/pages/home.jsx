@@ -1011,23 +1011,26 @@ export default function Home() {
                         />
                       </div>
 
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex flex-col">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="wrap-break-word text-lg font-bold text-slate-900 sm:text-xl">
                             {item.name || "Даатгалын нэр"}
                           </h3>
-
-                          {(itemCategories.length ? itemCategories : ["Бусад"]).map(
-                            (category) => (
-                              <span
-                                key={category}
-                                className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600"
-                              >
-                                {category}
-                              </span>
-                            )
-                          )}
                         </div>
+
+
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            {(itemCategories.length ? itemCategories : ["Бусад"]).map(
+                              (category) => (
+                                <span
+                                  key={category}
+                                  className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600"
+                                >
+                                  {category}
+                                </span>
+                              )
+                            )}
+                          </div>
 
                         <p className={`mt-2 whitespace-pre-line text-sm leading-6 text-slate-500 sm:text-[15px] line-clamp-2`}>
                           {item.description || "Тайлбар оруулаагүй байна."}

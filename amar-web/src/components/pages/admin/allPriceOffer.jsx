@@ -371,6 +371,7 @@ export default function PriceOffers() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Та энэ үнийн саналыг устгахдаа итгэлтэй байна уу?")) return;
+    setLoading(true);
 
     try {
       setDeletingId(id);
@@ -385,6 +386,7 @@ export default function PriceOffers() {
       alert("Устгах үед алдаа гарлаа");
     } finally {
       setDeletingId(null);
+      setLoading(false);
     }
   };
 
@@ -719,7 +721,6 @@ export default function PriceOffers() {
                       <button
                         type="button"
                         onClick={() => {navigate(`/admin/edit-price-offer/${item.id}`)}}
-                        aria-label="Устгах"
                         className="pr-6 disabled:opacity-40"
                       >
                         <Pen

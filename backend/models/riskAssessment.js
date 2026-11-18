@@ -20,6 +20,10 @@
         type: String,
         required: false,
       },
+      riskAssessmentFile: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RiskAssessmentFile",
+      }],
       selectedInsurance: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: "InsuranceProduct",

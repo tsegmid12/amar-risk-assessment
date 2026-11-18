@@ -10,11 +10,24 @@ import {
   ShieldCheck,
   ImagePlus,
   X,
+  FileText,
+  ExternalLink,
 } from "lucide-react";
 import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // backend-ийн limit-тэй ижил (5MB)
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // backend-ийн limit-тэй ижил (5MB)
+const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+const ATTACHMENT_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 const riskTypes = [
   "Гал түймэр",
@@ -130,6 +143,9 @@ const UpdateAssessment = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [assessmentFiles, setAssessmentFiles] = useState([]);
+  const [newAssessmentFiles, setNewAssessmentFiles] = useState([]);
+  const [removedAssessmentFileIds, setRemovedAssessmentFileIds] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -154,6 +170,7 @@ const UpdateAssessment = () => {
         setOrg(data.organization || "");
         setLocation(data.location || "");
         setOrgEmail(data.orgEmail || "");
+        setAssessmentFiles(data.riskAssessmentFile || []);
 
         // ObjectId эсвэл populate хийсэн object аль нь ч байсан ажиллана
         setSelectedInsurance(
@@ -254,6 +271,49 @@ const UpdateAssessment = () => {
     );
   };
 
+  const addAssessmentFiles = (fileList) => {
+    const valid = [];
+
+    for (const file of Array.from(fileList)) {
+      if (!ATTACHMENT_TYPES.has(file.type)) {
+        setError(`"${file.name}" файлын төрөл зөвшөөрөгдөхгүй байна.`);
+        continue;
+      }
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        setError(`"${file.name}" 5MB-аас том байна.`);
+        continue;
+      }
+      valid.push(file);
+    }
+
+    if (valid.length > 0) {
+      setNewAssessmentFiles((prev) => [...prev, ...valid]);
+      setError("");
+    }
+  };
+
+  const removeAssessmentFile = (fileId) => {
+    setAssessmentFiles((prev) => prev.filter((file) => file._id !== fileId));
+    setRemovedAssessmentFileIds((prev) =>
+      prev.includes(fileId) ? prev : [...prev, fileId]
+    );
+  };
+
+  const uploadAssessmentFiles = async (files) => {
+    if (files.length === 0) return [];
+
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
+
+    const response = await axios.post(
+      `${API_URL}/risk-assessment-files`,
+      formData,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return response.data.fileIds || [];
+  };
+
   const toggleInsurance = (insuranceId) => {
     setSelectedInsurance((prev) =>
       prev.includes(insuranceId)
@@ -288,7 +348,7 @@ const UpdateAssessment = () => {
     try {
       setSaving(true);
 
-      // 1. Шинэ зургуудыг upload хийж, хуучин ID-уудтай нэгтгэнэ
+      // 1. Шинэ зураг болон хавсаргасан файлуудыг upload хийнэ
       const risksPayload = await Promise.all(
         risks.map(async (risk) => {
           const uploadedIds = await uploadImages(risk.newFiles);
@@ -304,6 +364,7 @@ const UpdateAssessment = () => {
           };
         })
       );
+      const newFileIds = await uploadAssessmentFiles(newAssessmentFiles);
 
       // 2. Үнэлгээг шинэчилнэ
       const payload = {
@@ -311,6 +372,10 @@ const UpdateAssessment = () => {
         location: location.trim(),
         orgEmail: orgEmail.trim(),
         selectedInsurance,
+        riskAssessmentFile: [
+          ...assessmentFiles.map((file) => file._id),
+          ...newFileIds,
+        ],
         risks: risksPayload,
       };
 
@@ -318,6 +383,14 @@ const UpdateAssessment = () => {
         `${API_URL}/riskAssessments/${id}`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await Promise.all(
+        removedAssessmentFileIds.map((fileId) =>
+          axios.delete(`${API_URL}/risk-assessment-files/${fileId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        )
       );
 
       setAssessment(response.data);
@@ -358,7 +431,7 @@ const UpdateAssessment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-10">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:pl-85 lg:pr-20">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-6">
@@ -477,6 +550,93 @@ const UpdateAssessment = () => {
                 ))}
               </div>
             )}
+          </section>
+
+          {/* Хавсаргасан файл */}
+          <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-7">
+            <h2 className="mb-2 flex items-center gap-2 text-lg font-bold text-gray-900">
+              <FileText className="text-red-500" size={22} />
+              Эрсдэлийн үнэлгээний файл
+            </h2>
+            <p className="mb-5 text-sm text-gray-500">
+              PDF, Word, Excel эсвэл зураг файл оруулж болно. Нэг файл 5MB хүртэл.
+            </p>
+
+            {(assessmentFiles.length > 0 || newAssessmentFiles.length > 0) && (
+              <div className="mb-4 space-y-2">
+                {assessmentFiles.map((file) => {
+                  const fileName = file.originalName || file.name;
+
+                  return (
+                    <div
+                      key={file._id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
+                    >
+                      <span className="min-w-0 truncate text-sm font-medium text-gray-700">
+                        {fileName}
+                      </span>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <a
+                          href={`${API_URL}/risk-assessment-files/${file._id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`${fileName} нээх`}
+                          className="rounded-lg p-2 text-blue-600 hover:bg-blue-100"
+                        >
+                          <ExternalLink size={17} />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => removeAssessmentFile(file._id)}
+                          aria-label={`${fileName} устгах`}
+                          className="rounded-lg p-2 text-red-500 hover:bg-red-100"
+                        >
+                          <X size={17} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {newAssessmentFiles.map((file, index) => (
+                  <div
+                    key={`${file.name}-${file.lastModified}-${index}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3"
+                  >
+                    <span className="min-w-0 truncate text-sm font-medium text-gray-700">
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNewAssessmentFiles((prev) =>
+                          prev.filter((_, fileIndex) => fileIndex !== index)
+                        )
+                      }
+                      aria-label={`${file.name} устгах`}
+                      className="shrink-0 rounded-lg p-2 text-red-500 hover:bg-red-100"
+                    >
+                      <X size={17} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600">
+              <FileText size={18} />
+              Файл нэмэх
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  addAssessmentFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
           </section>
 
           {/* Эрсдэлийн мэдээлэл */}

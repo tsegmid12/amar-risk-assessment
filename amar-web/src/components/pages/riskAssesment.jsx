@@ -22,6 +22,8 @@ import {
   Earth,
   ShieldAlert,
   X,
+  FileText,
+  ExternalLink,
 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -461,6 +463,8 @@ export default function RiskAssessment() {
           </div>
         </section>
 
+        <AttachedFiles files={riskData[0]?.riskAssessmentFile} />
+
         {/* Detailed risks */}
         <section>
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -506,6 +510,69 @@ export default function RiskAssessment() {
       </div>
     </main>
   );
+}
+
+function AttachedFiles({ files }) {
+  if (!Array.isArray(files) || files.length === 0) return null;
+
+  return (
+    <section className={`${cardClass} p-5 sm:p-6`}>
+      <div className="mb-4 flex items-center gap-3">
+        <span className="rounded-xl bg-blue-50 p-2.5 text-blue-600">
+          <FileText size={20} />
+        </span>
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">
+            Эрсдэлийн үнэлгээний файл
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Хавсаргасан баримтыг нээж шалгах эсвэл татаж авна уу.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {files.map((file) => {
+          const fileName = file.originalName || file.name;
+
+          return (
+            <div
+              key={file._id}
+              className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <FileText size={18} className="shrink-0 text-slate-500" />
+                <div className="min-w-0">
+                  <p className="line-clamp-2 text-sm font-semibold text-slate-700">
+                    {fileName}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {formatFileSize(file.size)}
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href={`${API_URL}/risk-assessment-files/${file._id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 rounded-lg p-2 text-blue-600 transition hover:bg-blue-100"
+                aria-label={`${fileName} нээх`}
+                title="Файлыг нээж харах"
+              >
+                <ExternalLink size={18} />
+              </a>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function formatFileSize(size) {
+  if (!Number.isFinite(Number(size)) || Number(size) <= 0) return "Хэмжээ тодорхойгүй";
+  return `${(Number(size) / 1024 / 1024).toFixed(2)} MB`;
 }
 
 function SummaryCard({ icon: Icon, title, value, description, iconClass }) {

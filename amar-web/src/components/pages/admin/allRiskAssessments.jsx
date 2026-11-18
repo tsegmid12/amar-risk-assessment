@@ -667,6 +667,7 @@ export default function Organizations() {
       return;
     }
 
+    setLoading(true);
     try {
       await axios.delete(`${API_URL}/riskAssessments/${organizationId}`, {
         headers: {
@@ -681,6 +682,9 @@ export default function Organizations() {
     } catch (err) {
       console.error("Error deleting organization:", err);
       alert(err.response?.data?.message || "Алдаа гарлаа");
+    }
+    finally{
+      setLoading(false);
     }
   };
 

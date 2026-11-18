@@ -101,6 +101,8 @@ const AddRisk = () => {
   const [selectedInsurance, setSelectedInsurance] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState([]);
+  console.log("Selected files:", files); // Debug: сонгогдсон файлуудыг шалгах
 
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -190,6 +192,28 @@ const AddRisk = () => {
     risk.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const uploadRiskAssessmentFiles = async (files) => {
+    if (!files.length) return null;
+
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const response = await axios.post(
+      `${API_URL}/risk-assessment-files`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data.fileIds;
+  };
+
   const filteredInsurance = insurance.filter((item) => {
     const query = search.toLowerCase();
     const categoryText = Array.isArray(item.category)
@@ -260,6 +284,7 @@ const AddRisk = () => {
       const payload = {
         organization: organization.trim(),
         selectedInsurance,
+        riskAssessmentFile: files.length > 0 ? await uploadRiskAssessmentFiles(files) : null,
         orgEmail: orgEmail.trim(),
         user: userId,
         location: orgLocation.trim(),
@@ -435,6 +460,69 @@ const AddRisk = () => {
               placeholder="Байгууллагын имэйл оруулна уу"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition placeholder:text-gray-400 focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-50"
             />
+            <div>
+             <label className="my-2 block text-sm font-semibold text-gray-700">
+              Байгууллагын эрсдэлийн үнэлгээний баримт бичиг (PDF, Word, Excel гэх мэт) оруулах
+            </label>
+           <label className=" my-2 group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/70 px-6 py-8 transition hover:border-red-300 hover:bg-red-50/40">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-red-500 shadow-sm transition group-hover:scale-110">
+              <Upload size={22} />
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm font-semibold text-gray-700">
+                Файл оруулах
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                Олон файл сонгох боломжтой
+              </p>
+            </div>
+
+           <input
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const selectedFiles = Array.from(e.target.files);
+
+                setFiles((prev) => [...prev, ...selectedFiles]);
+
+                e.target.value = "";
+              }}
+            />
+
+            {files.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {files.map((file, index) => (
+                  <div
+                    key={`${file.name}-${index}`}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{file.name}</p>
+                      <p className="text-xs text-gray-400">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFiles((prev) => prev.filter((_, i) => i !== index))
+                      }
+                      className="text-red-500"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </label>
+          </div>
+
+
           </section>
 
           {/* RISK LIST HEADER */}

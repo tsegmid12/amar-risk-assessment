@@ -21,8 +21,23 @@ const User = require('./models/user');
 const PORT = process.env.PORT 
 const MONGO_URI = process.env.MONGO_URI 
 const upload = require('./middleware/imageUpload');
+const riskAssessmentFileUpload = require('./middleware/riskAssessmentFileUpload');
 const RiskImage = require('./models/RiskImage');
 const AdditionalService = require('./models/additionalService');
+const File = require('./models/riskAssessmentFile');
+
+const decodeOriginalFilename = (filename) => {
+    if (!filename || !/[ÃÂÐÑ]/.test(filename)) {
+        return filename;
+    }
+
+    try {
+        return Buffer.from(filename, 'latin1').toString('utf8');
+    } catch (error) {
+        console.error('Error decoding uploaded filename:', error);
+        return filename;
+    }
+};
 
 mongoose.connect(MONGO_URI).then(() => {
     console.log('Connected to MongoDB');
@@ -125,7 +140,25 @@ app.get('/risk-assessments', verifyToken, async (req, res) => {
 })
 
 app.get('/riskAssessments/:id', async (req, res) => {
-    const riskAssessment = await RiskAssessment.findById(req.params.id).populate('selectedInsurance');
+    const riskAssessment = await RiskAssessment.findById(req.params.id)
+        .populate('selectedInsurance')
+        .populate('riskAssessmentFile', 'name originalName contentType size uploadedAt');
+
+    if (riskAssessment && riskAssessment.riskAssessmentFile) {
+        await Promise.all(riskAssessment.riskAssessmentFile.map((file) => {
+            const originalName = decodeOriginalFilename(file.originalName || file.name);
+            const name = decodeOriginalFilename(file.name);
+
+            if (file.name !== name || file.originalName !== originalName) {
+                file.name = name;
+                file.originalName = originalName;
+                return file.save();
+            }
+
+            return null;
+        }));
+    }
+
     res.json(riskAssessment);
 })
 
@@ -566,4 +599,67 @@ app.delete('/additional-services/:id', async (req, res) => {
     }
 });
 
-module.exports = app;
+app.post("/risk-assessment-files", riskAssessmentFileUpload.array("files", 5), async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: "Файл сонгоно уу" });
+        }
+
+        const newFiles = await File.insertMany(req.files.map((file) => ({
+            name: decodeOriginalFilename(file.originalname),
+            originalName: decodeOriginalFilename(file.originalname),
+            contentType: file.mimetype,
+            size: file.size,
+            data: file.buffer
+        })));
+
+        res.status(201).json({
+            message: "Амжилттай хадгаллаа",
+            fileIds: newFiles.map((file) => file._id)
+        });
+
+  } catch (error) {
+    console.error("Error uploading risk assessment files:", error);
+    res.status(500).json({ message: error.message });
+  }
+}); 
+
+app.get("/risk-assessment-files/:id", async (req, res) => {
+    try {
+        const file = await File.findById(req.params.id);
+
+        if (!file) {
+            return res.status(404).json({ message: "Файл олдсонгүй" });
+        }
+
+        res.set({
+            "Content-Type": file.contentType,
+            "Content-Length": file.size,
+            "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(
+                decodeOriginalFilename(file.originalName || file.name)
+            )}`,
+        });
+        res.send(file.data);
+    } catch (error) {
+        console.error("Error reading risk assessment file:", error);
+        res.status(400).json({ message: "Файлын дугаар буруу байна" });
+    }
+});
+
+app.delete("/risk-assessment-files/:id", async (req, res) => {
+    try {
+        const deletedFile = await File.findByIdAndDelete(req.params.id);
+
+        if (!deletedFile) {
+            return res.status(404).json({ message: "Файл олдсонгүй" });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error deleting risk assessment file:", error);
+        res.status(400).json({ message: "Файлын дугаар буруу байна" });
+    }
+});
+
+
+module.exports = app
