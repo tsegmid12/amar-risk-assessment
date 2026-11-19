@@ -492,33 +492,38 @@ const AddRisk = () => {
               }}
             />
 
-            {files.length > 0 && (
-              <div className="mt-3 space-y-2">
-                {files.map((file, index) => (
-                  <div
-                    key={`${file.name}-${index}`}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{file.name}</p>
-                      <p className="text-xs text-gray-400">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFiles((prev) => prev.filter((_, i) => i !== index))
-                      }
-                      className="text-red-500"
+          
+              {files.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {files.map((file, index) => (
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="flex items-center gap-3 rounded-lg border border-gray-200 p-3"
                     >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                      <div className="min-w-0 flex-1">
+                        <p className="break-all text-sm font-medium leading-5">
+                          {file.name}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-400">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFiles((prev) => prev.filter((_, i) => i !== index))
+                        }
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-50"
+                        aria-label={`${file.name} файлыг устгах`}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
           </label>
           </div>
 
