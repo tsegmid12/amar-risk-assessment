@@ -480,7 +480,7 @@ const AddRisk = () => {
 
            <input
               type="file"
-              accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+              accept=".pdf"
               multiple
               className="hidden"
               onChange={(e) => {

@@ -2,13 +2,7 @@ const multer = require("multer");
 
 const allowedTypes = new Set([
   "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
+
 ]);
 
 module.exports = multer({
@@ -22,6 +16,6 @@ module.exports = multer({
       return cb(null, true);
     }
 
-    return cb(new Error("PDF, Word, Excel, JPG, PNG, WEBP файл зөвшөөрнө"));
+    return cb(new Error("PDF файл зөвшөөрнө"));
   },
 });

@@ -642,6 +642,10 @@ app.post("/risk-assessment-files", riskAssessmentFileUpload.array("files", 5), a
             return res.status(400).json({ message: "Файл сонгоно уу" });
         }
 
+        if(!req.files.every(file => file.mimetype === "application/pdf")) {
+            return res.status(400).json({ message: "Зөвхөн PDF файлуудыг зөвшөөрнө" });
+        }
+
         const newFiles = await File.insertMany(req.files.map((file) => ({
             name: decodeOriginalFilename(file.originalname),
             originalName: decodeOriginalFilename(file.originalname),
@@ -669,17 +673,36 @@ app.get("/risk-assessment-files/:id", async (req, res) => {
             return res.status(404).json({ message: "Файл олдсонгүй" });
         }
 
+        const filename = decodeOriginalFilename(
+            file.originalName || file.name
+        );
+
+        const ext = filename.split(".").pop().toLowerCase();
+
+        const mimeTypes = {
+            pdf: "application/pdf",
+            png: "image/png",
+            jpg: "image/jpeg",
+            jpeg: "image/jpeg",
+            webp: "image/webp",
+            gif: "image/gif",
+            txt: "text/plain"
+        };
+
+        const contentType =
+            mimeTypes[ext] || file.contentType || "application/octet-stream";
+
         res.set({
-            "Content-Type": file.contentType,
-            "Content-Length": file.size,
-            "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(
-                decodeOriginalFilename(file.originalName || file.name)
-            )}`,
+            "Content-Type": contentType,
+            "Content-Disposition": `inline; filename="${encodeURIComponent(filename)}"`,
+            "X-Content-Type-Options": "nosniff"
         });
-        res.send(file.data);
+
+        return res.end(file.data);
+
     } catch (error) {
         console.error("Error reading risk assessment file:", error);
-        res.status(400).json({ message: "Файлын дугаар буруу байна" });
+        return res.status(500).json({ message: "Файл уншихад алдаа гарлаа" });
     }
 });
 
@@ -699,4 +722,4 @@ app.delete("/risk-assessment-files/:id", async (req, res) => {
 });
 
 
-module.exports = app;
+module.exports = app
