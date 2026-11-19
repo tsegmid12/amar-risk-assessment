@@ -717,26 +717,6 @@ export default function PriceOffers() {
                           {item.date} · {item.offers.length} даатгал
                         </p>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => {navigate(`/admin/edit-price-offer/${item.id}`)}}
-                        className="pr-6 disabled:opacity-40"
-                      >
-                        <Pen
-                          size={20}
-                          className="text-gray-400 hover:text-gray-700 cursor-pointer"
-                        />
-                      </button>
-                      <button
-                        type="button"
-                        disabled={deletingId === item.id}
-                        onClick={() => handleDelete(item.id)}
-                        aria-label="Устгах"
-                        className="shrink-0 p-1 disabled:opacity-40"
-                      >
-                        <Trash size={18} className="text-red-600" />
-                      </button>
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-2">
@@ -767,6 +747,30 @@ export default function PriceOffers() {
                       >
                         Дэлгэрэнгүй
                         <ChevronRight size={16} />
+                      </button>
+                    </div>
+
+                    <div className="mt-3 flex gap-2">
+                       <button
+                        type="button"
+                        onClick={() => {navigate(`/admin/edit-price-offer/${item.id}`)}}
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Pen
+                          size={20}
+                          className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                        />
+                        Засах
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deletingId === item.id}
+                        onClick={() => handleDelete(item.id)}
+                        aria-label="Устгах"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-red-100 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                      >
+                        <Trash size={18} className="text-red-600" />
+                        Устгах
                       </button>
                     </div>
                   </article>

@@ -85,7 +85,7 @@ const verifyToken = (req, res, next) => {
     }
     catch (err) {
         console.error('Error verifying token', err);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(401).json({ message: 'Invalid token' });
     }
 }
 
@@ -171,9 +171,19 @@ app.put('/riskAssessments/:id', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
 
+
+    if(!email || !password) {
+        return res.status(400).json({ success: false, message: 'Имэйл болон нууц үгээ оруулна уу' });
+    }
+
+    const user = await User.findOne({ email });
     const isMatch = await bcrypt.compare(password, user.password) 
+
+    if(!user){
+    return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
     if (user) {
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -234,30 +244,67 @@ app.post('/register', async (req, res) => {
 })
 
 app.delete('/riskAssessments/:id', async (req, res) => {
-    const id = req.params.id;
-    const imageId = (await RiskAssessment.findById(id)).risks.flatMap(risk => risk.images);
-    const image = await RiskImage.findById(imageId);
+    try {
+        const assessment = await RiskAssessment.findById(
+            req.params.id
+        );
 
-        if (image) {
-            if (image.gridFsId) {
-                const bucket = getBucket();
+        if (!assessment) {
+            return res.status(404).json({
+                success: false,
+                message: "Risk assessment олдсонгүй"
+            });
+        }
 
-                const file = await bucket
-                    .find({ _id: image.gridFsId })
-                    .next();
+        const imageIds = [
+            ...new Set(
+                assessment.risks.flatMap(risk =>
+                    (risk.images || []).map(id => id.toString())
+                )
+            )
+        ];
 
-                if (file) {
-                    await bucket.delete(image.gridFsId);
-                    console.log(`GridFS file with ID ${image.gridFsId} deleted successfully.`);
+        const images = await RiskImage.find({
+            _id: { $in: imageIds }
+        });
+
+        if (images.length > 0) {
+            const bucket = getBucket();
+
+            for (const image of images) {
+                if (image.gridFsId) {
+                    try {
+                        await bucket.delete(image.gridFsId);
+                    } catch (error) {
+                        console.error(
+                            "GridFS delete error:",
+                            error.message
+                        );
+                    }
                 }
             }
 
-            await RiskImage.findByIdAndDelete(imageId);
+            await RiskImage.deleteMany({
+                _id: { $in: imageIds }
+            });
         }
 
-        if(id) {await RiskAssessment.findByIdAndDelete(id)}
-    res.json({ success: true });
-})
+        await RiskAssessment.findByIdAndDelete(req.params.id);
+
+        return res.json({
+            success: true,
+            message: "Risk assessment deleted"
+        });
+
+    } catch (error) {
+        console.error("Delete assessment error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Delete failed"
+        });
+    }
+});
 
 
 
@@ -385,6 +432,10 @@ app.put('/verify-reset-password-code', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Нууц үг сэргээх код буруу байна' });
     }
 
+    if(user.resetPasswordCodeExpires < new Date()){
+        return res.status(400).json({ success: false, message: 'Нууц үг сэргээх код хугацаа дууссан байна' });
+    }
+
     user.resetPasswordVerified = true;
     user.resetPasswordCode = null;
     user.resetPasswordCodeExpires = null;
@@ -396,20 +447,6 @@ app.put('/verify-reset-password-code', async (req, res) => {
     }
 })
 
-app.put('/reset-password', async (req, res) => {
-    const { email, newPassword } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-        return res.status(400).json({ success: false, message: 'Имэйл хаяг олдсонгүй' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
-    res.json({ success: true, message: 'Нууц үг амжилттай солигдлоо' });
-})
 
 app.get('/all-risk-assessments', async (req, res) => {
     const riskAssessments = await RiskAssessment.find().populate('user');
@@ -662,4 +699,4 @@ app.delete("/risk-assessment-files/:id", async (req, res) => {
 });
 
 
-module.exports = app
+module.exports = app;

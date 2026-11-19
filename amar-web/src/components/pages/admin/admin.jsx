@@ -148,7 +148,7 @@ const AdminHome = () => {
 
             <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
               Эрсдэлийг удирдаж,
-              <br className="hidden sm:block" /> хамгааллыг нэмэгдүүлье.
+              <br className="hidden sm:block" /> хамгаалалтыг нэмэгдүүлье.
             </h2>
 
             <p className="mt-3 max-w-lg text-sm leading-6 text-red-50">
